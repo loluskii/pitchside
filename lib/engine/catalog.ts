@@ -1,7 +1,7 @@
 // The simulated sporting world: sports, regions, competitions and clubs.
 // Every club and competition here is fictional.
 
-export type SportKey = "football" | "basketball";
+export type SportKey = "football" | "basketball" | "hockey" | "tennis";
 
 export type SportDef = {
   id: number;
@@ -32,6 +32,8 @@ export type LeagueDef = {
 export const SPORTS: SportDef[] = [
   { id: 1, key: "football", feedName: "Soccer", slotMinutes: 60, liveMinutes: 105, matchesPerSlot: 3 },
   { id: 2, key: "basketball", feedName: "Basketball", slotMinutes: 120, liveMinutes: 108, matchesPerSlot: 3 },
+  { id: 4, key: "hockey", feedName: "Ice Hockey", slotMinutes: 90, liveMinutes: 80, matchesPerSlot: 3 },
+  { id: 5, key: "tennis", feedName: "Tennis", slotMinutes: 60, liveMinutes: 126, matchesPerSlot: 2 },
 ];
 
 export const LEAGUES: LeagueDef[] = [
@@ -82,6 +84,30 @@ export const LEAGUES: LeagueDef[] = [
     offset: 75, priority: 76, tempo: 0.92,
     teams: ["Madrid Norte", "Belgrade Iron", "Kaunas Amber", "Athens Owls", "Istanbul Bridges", "Milano Sud",
       "Berlin Spree", "Lyon Lumière", "Riga Pines", "Valencia Mar", "Munich Isar", "Porto Ribeira"],
+  },
+  {
+    id: 4101, sportId: 4, categoryId: 41, categoryName: "North America", name: "Frontier Hockey League",
+    offset: 25, priority: 70, tempo: 1.0,
+    teams: ["Lakeport Huskies", "Ironvale Bears", "Granite Bay Storm", "Cedar Falls Wolves", "Northgate Kings", "Riverside Blades",
+      "Pine Ridge Rangers", "Harbour City Pilots", "Silver Peak Owls", "Eastwood Hawks", "Maple Run Flyers", "Stonebridge Rams"],
+  },
+  {
+    id: 4201, sportId: 4, categoryId: 42, categoryName: "Nordics", name: "Nordic Elite",
+    offset: 55, priority: 66, tempo: 0.9,
+    teams: ["Kalmar Isfalk", "Tampere Lynx", "Bergen Viking", "Oulu Karhut", "Umeå Ravens", "Aarhus Storm",
+      "Turku Sharks", "Lulea Polar", "Trondheim Ørn", "Espoo Lions", "Malmo Isbjörn", "Odense Ulve"],
+  },
+  {
+    id: 5101, sportId: 5, categoryId: 51, categoryName: "Men's Tour", name: "Harbour Masters",
+    offset: 5, priority: 74, tempo: 1.0,
+    teams: ["A. Okafor", "M. Lindqvist", "R. Delgado", "T. Nakamura", "J. Mercer", "L. Duval",
+      "K. Adeyemi", "S. Romano", "P. Kowalski", "D. Haddad", "E. Varga", "N. Petrov"],
+  },
+  {
+    id: 5201, sportId: 5, categoryId: 52, categoryName: "Women's Tour", name: "Coastline Open",
+    offset: 35, priority: 72, tempo: 1.0,
+    teams: ["I. Moreau", "C. Abara", "H. Sato", "V. Novak", "B. Castillo", "O. Brennan",
+      "F. Eze", "G. Lindberg", "Y. Park", "M. Rossi", "Z. Hadid-Ali", "E. Sandoval"],
   },
 ];
 

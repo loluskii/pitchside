@@ -241,7 +241,7 @@ export function PersonalDetailsPageView() {
   const mobileNumber = useAuthStore((state) => state.mobileNumber);
   const currentUser = useUserStore((state) => state.currentUser);
   const refreshCurrentUser = useUserStore((state) => state.refreshCurrentUser);
-  const { openCreateAccount, openLogin } = useAuthModal();
+  const { openLogin } = useAuthModal();
 
   async function refreshProfile() {
     await refreshCurrentUser(mobileNumber ?? undefined);
@@ -276,13 +276,6 @@ export function PersonalDetailsPageView() {
                 >
                   Log in
                   <ChevronRight className="app-icon" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openCreateAccount("/account/personal-details")}
-                  className="app-button app-button-outline font-semibold"
-                >
-                  Create account
                 </button>
               </div>
             </div>

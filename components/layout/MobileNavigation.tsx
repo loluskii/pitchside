@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   House,
-  Radio,
+  Dices,
   ReceiptText,
   UserRound,
 } from "lucide-react";
@@ -116,13 +116,13 @@ export function MobileNavigation() {
       label: "Sports",
       icon: SportsGridIcon,
       active: (currentPathname) =>
-        isRouteActive(currentPathname, "/sports"),
+        isRouteActive(currentPathname, "/sports") || isRouteActive(currentPathname, "/live"),
     },
     {
-      href: "/live",
-      label: "Live",
-      icon: Radio,
-      active: (currentPathname) => isRouteActive(currentPathname, "/live"),
+      href: "/casino",
+      label: "Casino",
+      icon: Dices,
+      active: (currentPathname) => isRouteActive(currentPathname, "/casino"),
     },
     {
       href: "/my-bets",

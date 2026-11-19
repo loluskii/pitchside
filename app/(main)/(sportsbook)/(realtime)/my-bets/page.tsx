@@ -244,7 +244,7 @@ function BottomDrawer({
 
 export default function MyBetsPage() {
   const router = useRouter();
-  const { openCreateAccount, openLogin } = useAuthModal();
+  const { openLogin } = useAuthModal();
   const [activeRootTab, setActiveRootTab] = useState<(typeof ROOT_TABS)[number]["id"]>("open");
   const [activeHistoryTab, setActiveHistoryTab] =
     useState<(typeof HISTORY_FILTER_TABS)[number]["id"]>("all");
@@ -580,13 +580,6 @@ export default function MyBetsPage() {
                 >
                   Log in
                   <ChevronRight size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openCreateAccount("/my-bets")}
-                  className="inline-flex items-center rounded-lg border border-white/10 px-4 py-2 text-md font-semibold text-white/80"
-                >
-                  Create account
                 </button>
               </div>
             </div>

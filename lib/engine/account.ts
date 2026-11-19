@@ -215,7 +215,7 @@ export function placeBets(payload: PlacePayload) {
         eventName: `${price.fixture.home} - ${price.fixture.away}`,
         marketName: price.market.marketName,
         outcomeName: String(outcome?.outcomeName ?? ""),
-        sportName: price.fixture.sport.key === "football" ? "Football" : "Basketball",
+        sportName: price.fixture.sport.feedName === "Soccer" ? "Football" : price.fixture.sport.feedName,
         eventDate: new Date(price.fixture.kickoff).toISOString(),
       });
     }
@@ -341,4 +341,83 @@ export function transactions() {
 
 export function signOut() {
   // Accounts persist locally so a returning visitor keeps their history.
+}
+
+// ─── Wallet: play-money top-ups and withdrawals ─────────────────────────────
+
+const MAX_BALANCE = 5_000_000;
+const WITHDRAW_SETTLE_MS = 45_000;
+
+type Withdrawal = { id: number; amount: number; created: string; reference: string };
+type LedgerWithWallet = Ledger & { withdrawals?: Withdrawal[] };
+
+export function deposit(amount: number) {
+  const ledger = load() as LedgerWithWallet;
+  if (!ledger.user) return { status_code: 401, status_description: "Log in to add funds." };
+  const value = Math.round(Number(amount));
+  if (!(value >= 100)) return { status_code: 400, status_description: "Minimum top-up is ₦100." };
+  if (ledger.user.balance + value > MAX_BALANCE) {
+    return { status_code: 400, status_description: "Play balances are capped at ₦5,000,000." };
+  }
+  ledger.user.balance += value;
+  const reference = `TP${Date.now().toString(36).toUpperCase()}`;
+  record(ledger, { type: "credit", subject: "Top-up", description: `Instant top-up · ${reference}`, amount: value });
+  save(ledger);
+  return { status_code: 200, status: true, message: "Funds added", data: { reference, balance: ledger.user.balance } };
+}
+
+export function withdraw(amount: number) {
+  const ledger = load() as LedgerWithWallet;
+  if (!ledger.user) return { status_code: 401, status_description: "Log in to withdraw." };
+  const value = Math.round(Number(amount));
+  if (!(value >= 500)) return { status_code: 400, status_description: "Minimum withdrawal is ₦500." };
+  if (value > ledger.user.balance) return { status_code: 400, status_description: "That's more than your balance." };
+  ledger.user.balance -= value;
+  const entry: Withdrawal = {
+    id: ledger.nextId++,
+    amount: value,
+    created: new Date().toISOString(),
+    reference: `WD${Date.now().toString(36).toUpperCase()}`,
+  };
+  ledger.withdrawals = [entry, ...(ledger.withdrawals ?? [])].slice(0, 30);
+  record(ledger, { type: "debit", subject: "Withdrawal", description: `Payout · ${entry.reference}`, amount: value });
+  save(ledger);
+  return { status_code: 200, status: true, message: "Withdrawal requested", data: entry };
+}
+
+export function withdrawals() {
+  const ledger = load() as LedgerWithWallet;
+  const now = Date.now();
+  return {
+    status_code: 200,
+    status: true,
+    data: (ledger.withdrawals ?? []).map((w) => ({
+      ...w,
+      status: now - new Date(w.created).getTime() > WITHDRAW_SETTLE_MS ? "Paid" : "Processing",
+    })),
+  };
+}
+
+// ─── Casino ─────────────────────────────────────────────────────────────────
+
+/** Takes a stake for a casino round. Returns the new balance, or an error. */
+export function casinoStake(game: string, stake: number) {
+  const ledger = load();
+  if (!ledger.user) return { ok: false as const, error: "Log in to play." };
+  const value = Math.round(Number(stake) * 100) / 100;
+  if (!(value >= 50)) return { ok: false as const, error: "Minimum stake is ₦50." };
+  if (value > ledger.user.balance) return { ok: false as const, error: "Not enough balance." };
+  ledger.user.balance -= value;
+  record(ledger, { type: "debit", subject: game, description: "Casino stake", amount: value });
+  save(ledger);
+  return { ok: true as const, balance: ledger.user.balance };
+}
+
+export function casinoPayout(game: string, amount: number) {
+  const ledger = load();
+  if (!ledger.user || !(amount > 0)) return;
+  const value = Math.round(amount * 100) / 100;
+  ledger.user.balance += value;
+  record(ledger, { type: "credit", subject: game, description: "Casino win", amount: value });
+  save(ledger);
 }

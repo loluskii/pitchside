@@ -166,7 +166,16 @@ async function platform(path: string, params: URLSearchParams, init: RequestInit
   if (path.startsWith("/notification/user")) return ok([]);
   if (path.startsWith("/notification/")) return ok({}, { message: "Code sent" });
   if (path.startsWith("/user/wallet/transactions")) return account.transactions();
-  if (path.startsWith("/user/wallet/")) return { status_code: 400, status_description: "Payments are switched off on Pitchside." };
+  if (path.startsWith("/user/wallet/initiate-deposit")) {
+    const body = await readBody(init);
+    return account.deposit(Number(body.amount ?? 0));
+  }
+  if (path.startsWith("/user/wallet/withdraw")) {
+    const body = await readBody(init);
+    return account.withdraw(Number(body.amount ?? 0));
+  }
+  if (path.startsWith("/user/wallet/list-pending-withdrawal")) return account.withdrawals();
+  if (path.startsWith("/user/wallet/")) return ok([]);
   if (path.startsWith("/content-management/banner")) return ok(BANNERS);
   if (path.startsWith("/content-management/page")) return ok({ title: "", content: "" });
   if (path.startsWith("/games/promotions")) return ok([]);

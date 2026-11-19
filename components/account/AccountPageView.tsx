@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -160,7 +162,7 @@ const ProfilePage = ({
                     onClick={() => onOpenAuth("login")}
                   >
                     <span className="app-text-body font-bold tracking-wide">
-                      Login / Register
+                      Log in
                     </span>
                     <MdChevronRight className="app-icon" color="var(--text-dim)" />
                   </button>
@@ -252,9 +254,20 @@ const ProfilePage = ({
             {showBalance ? balanceLabel : "••••"}
           </span>
 
-          <p className="mt-2 text-[12px] text-[var(--ink-3)]">
-            Play balance. New accounts start with ₦50,000 and winnings settle here automatically.
-          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Link
+              href="/deposit"
+              className="flex h-10 items-center justify-center rounded-xl bg-[var(--lime)] text-sm font-bold text-[var(--ink)]"
+            >
+              Add funds
+            </Link>
+            <Link
+              href="/withdraw"
+              className="flex h-10 items-center justify-center rounded-xl border border-[var(--ink)]/15 text-sm font-bold text-[var(--ink)]"
+            >
+              Withdraw
+            </Link>
+          </div>
         </div>
       </div>
 

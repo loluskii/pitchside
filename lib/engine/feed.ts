@@ -3,6 +3,7 @@
 import type { RawFixture, RawMarket, RawOutcome } from "@/lib/utils/normalize";
 import { LEAGUES, SPORTS, getLeague } from "./catalog";
 import {
+  tennisSetScores,
   fixtureById,
   fixturesAround,
   matchState,
@@ -185,9 +186,91 @@ function basketballMarkets(fixture: Fixture, state: MatchState): MarketDef[] {
   return markets;
 }
 
+function hockeyMarkets(fixture: Fixture, state: MatchState): MarketDef[] {
+  const p = probabilities(fixture, state);
+  const goals = state.homeScore + state.awayScore;
+  const lines = state.phase === "scheduled" ? [4.5, 5.5, 6.5] : [goals + 0.5, goals + 1.5, goals + 2.5];
+  return [
+    {
+      id: 1, name: "1X2 (regular time)", specifier: "", group: "Main",
+      outcomes: [
+        { id: 1, name: "Home", label: "1", p: p.home },
+        { id: 2, name: "Draw", label: "X", p: p.draw },
+        { id: 3, name: "Away", label: "2", p: p.away },
+      ],
+    },
+    ...lines.map((line) => ({
+      id: 18, name: "Total goals", specifier: `total=${fmt(line)}`, group: "Goals",
+      outcomes: [
+        { id: 12, name: `Over ${fmt(line)}`, label: "Over", p: p.over(line) },
+        { id: 13, name: `Under ${fmt(line)}`, label: "Under", p: 1 - p.over(line) },
+      ],
+    })),
+    ...[-1.5, 1.5].map((hcp) => {
+      const cover = p.cover(hcp);
+      return {
+        id: 16, name: "Puck line", specifier: `hcp=${hcp > 0 ? "+" : ""}${fmt(hcp)}`, group: "Main",
+        outcomes: [
+          { id: 1714, name: `Home (${hcp > 0 ? "+" : ""}${fmt(hcp)})`, label: "1", p: cover },
+          { id: 1715, name: `Away (${hcp > 0 ? "" : "+"}${fmt(-hcp)})`, label: "2", p: 1 - cover },
+        ],
+      };
+    }),
+    {
+      id: 11, name: "Draw no bet", specifier: "", group: "Main",
+      outcomes: [
+        { id: 4, name: "Home", label: "1", p: p.home / Math.max(p.home + p.away, 0.001) },
+        { id: 5, name: "Away", label: "2", p: p.away / Math.max(p.home + p.away, 0.001) },
+      ],
+    },
+  ];
+}
+
+function tennisMarkets(fixture: Fixture, state: MatchState): MarketDef[] {
+  const p = probabilities(fixture, state);
+  const markets: MarketDef[] = [
+    {
+      id: 186, name: "Winner", specifier: "", group: "Main",
+      outcomes: [
+        { id: 4, name: fixture.home, label: "1", p: p.home },
+        { id: 5, name: fixture.away, label: "2", p: p.away },
+      ],
+    },
+  ];
+  if (state.homeScore + state.awayScore < 2) {
+    markets.push({
+      id: 189, name: "Total sets", specifier: "total=2.5", group: "Sets",
+      outcomes: [
+        { id: 12, name: "Over 2.5", label: "Over", p: p.over(2.5) },
+        { id: 13, name: "Under 2.5", label: "Under", p: 1 - p.over(2.5) },
+      ],
+    });
+  }
+  if (state.homeScore === 0 && state.awayScore === 0) {
+    for (const hcp of [-1.5, 1.5]) {
+      const cover = p.cover(hcp);
+      markets.push({
+        id: 188, name: "Set handicap", specifier: `hcp=${hcp > 0 ? "+" : ""}${fmt(hcp)}`, group: "Sets",
+        outcomes: [
+          { id: 1714, name: `${fixture.home} (${hcp > 0 ? "+" : ""}${fmt(hcp)})`, label: "1", p: cover },
+          { id: 1715, name: `${fixture.away} (${hcp > 0 ? "" : "+"}${fmt(-hcp)})`, label: "2", p: 1 - cover },
+        ],
+      });
+    }
+  }
+  return markets;
+}
+
+const MARKET_BUILDERS = {
+  football: footballMarkets,
+  basketball: basketballMarkets,
+  hockey: hockeyMarkets,
+  tennis: tennisMarkets,
+} as const;
+
 /** Fully priced markets for a fixture at `now`. */
 export function priceFixture(fixture: Fixture, now: number, state = matchState(fixture, now)): FeedMarket[] {
-  const defs = fixture.sport.key === "football" ? footballMarkets(fixture, state) : basketballMarkets(fixture, state);
+  const defs = MARKET_BUILDERS[fixture.sport.key](fixture, state);
   const frozen = state.suspended || state.phase === "ended";
   return defs.map((def) => ({
     marketID: def.id,
@@ -216,12 +299,19 @@ function iso(time: number) {
   return new Date(time).toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
+const LIST_MARKETS = {
+  football: [1, 18, 10, 29, 11],
+  basketball: [219, 225, 223],
+  hockey: [1, 18, 16],
+  tennis: [186, 189, 188],
+} as const satisfies Record<Fixture["sport"]["key"], readonly number[]>;
+
 /** One fixture in list shape: header fields + the outcomes the list views render. */
 export function rawFixture(fixture: Fixture, now: number, options: { allMarkets?: boolean } = {}): RawFixture & Record<string, unknown> {
   const state = matchState(fixture, now);
   const markets = priceFixture(fixture, now, state);
-  const listMarketIds = fixture.sport.key === "football" ? [1, 18, 10, 29, 11] : [219, 225, 223];
-  const visible = options.allMarkets ? markets : markets.filter((m) => listMarketIds.includes(m.marketID));
+  const listMarketIds = LIST_MARKETS[fixture.sport.key];
+  const visible = options.allMarkets ? markets : markets.filter((m) => (listMarketIds as readonly number[]).includes(m.marketID));
   const inPlay = state.phase !== "scheduled";
 
   return {
@@ -250,9 +340,12 @@ export function rawFixture(fixture: Fixture, now: number, options: { allMarkets?
     eventInfo: inPlay
       ? {
           score: { home: state.homeScore, away: state.awayScore },
-          period_scores: state.halfTime
-            ? [{ number: 1, home_score: state.halfTime[0], away_score: state.halfTime[1], type: "regular_period" }]
-            : [],
+          period_scores:
+            fixture.sport.key === "tennis"
+              ? tennisSetScores(fixture, now).map(([h, a], i) => ({ number: i + 1, home_score: h, away_score: a, type: "set" }))
+              : state.halfTime
+                ? [{ number: 1, home_score: state.halfTime[0], away_score: state.halfTime[1], type: "regular_period" }]
+                : [],
         }
       : undefined,
   };
@@ -269,12 +362,30 @@ export function listMarketMeta(sportId?: number | string): RawMarket[] {
     { marketID: 219, marketName: "Winner", sportID: 2, specifier: "" },
     { marketID: 225, marketName: "Total", sportID: 2, specifier: "" },
     { marketID: 223, marketName: "Handicap", sportID: 2, specifier: "" },
+    { marketID: 1, marketName: "1X2", sportID: 4, specifier: "" },
+    { marketID: 18, marketName: "Total goals", sportID: 4, specifier: "total=5.5" },
+    { marketID: 16, marketName: "Puck line", sportID: 4, specifier: "" },
+    { marketID: 186, marketName: "Winner", sportID: 5, specifier: "" },
+    { marketID: 189, marketName: "Total sets", sportID: 5, specifier: "total=2.5" },
+    { marketID: 188, marketName: "Set handicap", sportID: 5, specifier: "" },
   ];
   if (!sportId || String(sportId) === "0") return meta;
   return meta.filter((m) => String(m.sportID) === String(sportId));
 }
 
 export function marketGroups(sportId: number | string) {
+  if (String(sportId) === "4") {
+    return [
+      { id: 1, sportID: 4, name: "Main", marketIDs: [1, 16, 11], priority: 1 },
+      { id: 2, sportID: 4, name: "Goals", marketIDs: [18], priority: 2 },
+    ];
+  }
+  if (String(sportId) === "5") {
+    return [
+      { id: 1, sportID: 5, name: "Main", marketIDs: [186], priority: 1 },
+      { id: 2, sportID: 5, name: "Sets", marketIDs: [189, 188], priority: 2 },
+    ];
+  }
   if (String(sportId) === "2") {
     return [
       { id: 1, sportID: 2, name: "Main", marketIDs: [219, 223], priority: 1 },
@@ -415,14 +526,14 @@ export function settleSelection(
   switch (m) {
     case 1: case 60: won = (o === 1 && h > a) || (o === 2 && h === a) || (o === 3 && h < a); break;
     case 10: won = (o === 9 && h >= a) || (o === 10 && h !== a) || (o === 11 && h <= a); break;
-    case 11: case 219:
+    case 11: case 219: case 186:
       if (h === a) return { result: "void", state, fixture };
       won = (o === 4 && h > a) || (o === 5 && a > h); break;
-    case 18: case 68: case 225: won = o === 12 ? total > line : total < line; break;
+    case 18: case 68: case 225: case 189: won = o === 12 ? total > line : total < line; break;
     case 19: case 227: won = o === 12 ? h > line : h < line; break;
     case 20: case 228: won = o === 12 ? a > line : a < line; break;
     case 29: won = o === 74 ? h > 0 && a > 0 : !(h > 0 && a > 0); break;
-    case 16: case 223: won = o === 1714 ? h + hcp > a : h + hcp < a; break;
+    case 16: case 223: case 188: won = o === 1714 ? h + hcp > a : h + hcp < a; break;
   }
   if (won === null) return { result: "void", state, fixture };
   return { result: won ? "won" : "lost", state, fixture };

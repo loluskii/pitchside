@@ -12,12 +12,12 @@ export function PitchsideMark({ size = 28, className }: { size?: number; classNa
   );
 }
 
-export function PitchsideLogo({ className, size = 28 }: { className?: string; size?: number }) {
+export function PitchsideLogo({ className, size = 28, tone = "dark" }: { className?: string; size?: number; tone?: "dark" | "light" }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <PitchsideMark size={size} />
       <span
-        className="font-heading text-[22px] font-extrabold leading-none tracking-[-0.04em] text-[var(--ink)]"
+        className={cn("font-heading text-[22px] font-extrabold leading-none tracking-[-0.04em]", tone === "light" ? "text-[#fff]" : "text-[var(--ink)]")}
         style={{ fontVariationSettings: '"wdth" 88' }}
       >
         pitchside

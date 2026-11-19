@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { FeaturedMatchCardSkeleton } from "@/components/home/FeaturedMatchCardSkeleton";
 import { FixtureSkeleton } from "@/components/fixtures/FixtureSkeleton";
+import { CasinoBand } from "@/components/home/CasinoBand";
 import { HomeHero } from "@/components/home/HomeHero";
 import { SportIconBadge } from "@/components/ui/SportIconBadge";
 import { useSportsMenu } from "@/lib/query/hooks/useSports";
@@ -75,10 +76,10 @@ const QUICK_LINKS = [
 const MENU_TABS = ["All", "Sports", "Others"] as const;
 
 const MORE_GAMES = [
-  { label: "Aviator", icon: "plane", href: "/casino/play/SPB-aviator" },
-  { label: "Super Jet", icon: "plane", href: "/casino" },
-  { label: "Astro X", icon: "target", href: "/casino" },
-  { label: "Spin & Win", icon: "activity", href: "/casino" },
+  { label: "Liftoff", icon: "plane", href: "/casino/liftoff" },
+  { label: "Spot Kick", icon: "target", href: "/casino/spot-kick" },
+  { label: "Dice Duel", icon: "activity", href: "/casino/dice" },
+  { label: "Hi-Lo", icon: "activity", href: "/casino/hi-lo" },
 ] as const;
 
 const OTHER_MENU_ITEMS = [
@@ -248,6 +249,7 @@ export function HomeView() {
 
         <FeaturedGamesContainer />
         <LiveContainer />
+        <CasinoBand />
         <HighlightsContainer />
 
       {isMenuOpen ? <div className="menu-overlay" onClick={() => setIsMenuOpen(false)} /> : null}

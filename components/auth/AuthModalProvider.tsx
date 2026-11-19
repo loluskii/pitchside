@@ -117,11 +117,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   }, [openModal]);
 
   const openCreateAccount = useCallback((returnUrl?: string, referralCode?: string) => {
-    openModal("create-account", returnUrl, referralCode);
+    // Pitchside is login-only (demo account); sign-up routes to log in.
+    void referralCode;
+    openModal("login", returnUrl);
   }, [openModal]);
 
   const openForgotPassword = useCallback((returnUrl?: string) => {
-    openModal("forgot-password", returnUrl);
+    openModal("login", returnUrl);
   }, [openModal]);
 
   const requestedReturnUrl = modal?.returnUrl ?? "";

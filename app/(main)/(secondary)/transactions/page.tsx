@@ -161,7 +161,7 @@ function BottomDrawer({
 }
 
 export default function TransactionsPage() {
-  const { openCreateAccount, openLogin } = useAuthModal();
+  const { openLogin } = useAuthModal();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const authHasHydrated = useAuthStore((state) => state.hasHydrated);
   const [selectedDateFilter, setSelectedDateFilter] = useState<DateFilterId>("week");
@@ -222,13 +222,6 @@ export default function TransactionsPage() {
                 >
                   Log in
                   <ChevronRight className="app-icon" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openCreateAccount("/transactions")}
-                  className="inline-flex min-h-9 items-center justify-center rounded-lg border border-white/10 px-3 py-2 text-sm font-semibold text-white/80"
-                >
-                  Create account
                 </button>
               </div>
             </div>

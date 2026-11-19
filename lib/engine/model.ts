@@ -58,7 +58,9 @@ function teamRating(league: LeagueDef, team: string) {
 export function fixturesForSlot(league: LeagueDef, slot: number): Fixture[] {
   const sport = getSport(league.sportId)!;
   const kickoff = EPOCH + (slot * sport.slotMinutes + league.offset) * MINUTE;
-  const pool = league.teams.filter((_, i) => i % 2 === Math.abs(slot) % 2);
+  // Enough pools that a slot never shares players with any slot still in play.
+  const pools = Math.max(1, Math.ceil(sport.liveMinutes / sport.slotMinutes));
+  const pool = league.teams.filter((_, i) => i % pools === Math.abs(slot) % pools);
   const ordered = shuffle(pool, rng(`${league.id}:${slot}:draw`));
   const fixtures: Fixture[] = [];
 
@@ -67,8 +69,7 @@ export function fixturesForSlot(league: LeagueDef, slot: number): Fixture[] {
     const away = ordered[i * 2 + 1];
     const hr = teamRating(league, home);
     const ar = teamRating(league, away);
-    const base = sport.key === "football" ? 1.35 * league.tempo : 108 * league.tempo;
-    const edge = sport.key === "football" ? 0.15 : 3; // home advantage
+    const rates = sideRates(sport, league, hr, ar);
     fixtures.push({
       id: fixtureId(league, slot, i),
       league,
@@ -77,11 +78,27 @@ export function fixturesForSlot(league: LeagueDef, slot: number): Fixture[] {
       kickoff,
       home,
       away,
-      homeRate: sport.key === "football" ? base * (hr / ar) ** 0.8 + edge : base + (hr - ar) * 12 + edge,
-      awayRate: sport.key === "football" ? base * (ar / hr) ** 0.8 : base + (ar - hr) * 12,
+      homeRate: rates[0],
+      awayRate: rates[1],
     });
   }
   return fixtures;
+}
+
+/** Expected goals/points per side; for tennis, the chance of each player winning a set. */
+function sideRates(sport: SportDef, league: LeagueDef, hr: number, ar: number): [number, number] {
+  switch (sport.key) {
+    case "football":
+      return [1.35 * league.tempo * (hr / ar) ** 0.8 + 0.15, 1.35 * league.tempo * (ar / hr) ** 0.8];
+    case "hockey":
+      return [2.9 * league.tempo * (hr / ar) ** 0.7 + 0.2, 2.9 * league.tempo * (ar / hr) ** 0.7];
+    case "basketball":
+      return [108 * league.tempo + (hr - ar) * 12 + 3, 108 * league.tempo + (ar - hr) * 12];
+    case "tennis": {
+      const p = Math.min(0.82, Math.max(0.18, 0.5 + (hr - ar) * 0.55));
+      return [p, 1 - p];
+    }
+  }
 }
 
 function slotAt(league: LeagueDef, sport: SportDef, time: number) {
@@ -134,14 +151,15 @@ function timeline(fixture: Fixture): ScoreEvent[] {
   const next = rng(`${fixture.id}:timeline`);
   const events: ScoreEvent[] = [];
 
-  if (fixture.sport.key === "football") {
+  if (fixture.sport.key === "football" || fixture.sport.key === "hockey") {
+    const length = fixture.sport.key === "football" ? 90 : 60;
     for (const side of ["home", "away"] as const) {
       const goals = poissonSample(side === "home" ? fixture.homeRate : fixture.awayRate, next);
       for (let g = 0; g < goals; g++) {
-        events.push({ at: 1 + next() * 89.5, side, points: 1 });
+        events.push({ at: 0.5 + next() * (length - 0.6), side, points: 1 });
       }
     }
-  } else {
+  } else if (fixture.sport.key === "basketball") {
     // Scoring plays average ~2.2 points; space them so totals land near the expected rate.
     for (const side of ["home", "away"] as const) {
       const target = side === "home" ? fixture.homeRate : fixture.awayRate;
@@ -201,6 +219,22 @@ export function matchState(fixture: Fixture, now: number): MatchState {
     } else {
       gameMinute = 90; status = "ended"; phase = "ended";
     }
+  } else if (fixture.sport.key === "tennis") {
+    return tennisState(fixture, elapsed);
+  } else if (fixture.sport.key === "hockey") {
+    // 3 x 20-minute periods with 10-minute intermissions.
+    regulation = 60;
+    const periods = ["1st period", "2nd period", "3rd period"];
+    gameMinute = 60; status = "ended"; phase = "ended";
+    let t = elapsed;
+    for (let q = 0; q < 3; q++) {
+      if (t < 20) { gameMinute = q * 20 + t; status = periods[q]; phase = "live"; break; }
+      t -= 20;
+      if (q < 2) {
+        if (t < 10) { gameMinute = (q + 1) * 20; status = "pause"; phase = "break"; break; }
+        t -= 10;
+      }
+    }
   } else {
     // 4 x 12 game minutes, each played over 22 real minutes with short breaks.
     regulation = 48;
@@ -230,7 +264,7 @@ export function matchState(fixture: Fixture, now: number): MatchState {
 
   const [homeScore, awayScore] = scoreAt(fixture, gameMinute);
   const lastEvent = timeline(fixture).filter((e) => e.at <= gameMinute && e.points > 0).pop();
-  const realMinutesPerGameMinute = fixture.sport.key === "football" ? 1 : 22 / 12;
+  const realMinutesPerGameMinute = fixture.sport.key === "basketball" ? 22 / 12 : 1;
   const sinceLast = lastEvent ? (gameMinute - lastEvent.at) * realMinutesPerGameMinute * 60 : Infinity;
   const half = fixture.sport.key === "football" && gameMinute >= 45 ? scoreAt(fixture, 45) : null;
   const seconds = (gameMinute % 1) * 60;
@@ -245,8 +279,72 @@ export function matchState(fixture: Fixture, now: number): MatchState {
     remaining: Math.max(0, (regulation - gameMinute) / regulation),
     halfTime: half,
     // Football goals are rare, so freeze markets briefly after each one.
-    suspended: fixture.sport.key === "football" && phase === "live" && sinceLast < 25,
+    suspended: fixture.sport.key !== "basketball" && phase === "live" && sinceLast < 25,
   };
+}
+
+// ─── Tennis ──────────────────────────────────────────────────────────────────
+
+type TennisSet = { winner: "home" | "away"; games: [number, number]; start: number; end: number };
+const SET_MINUTES = 38;
+const SET_BREAK = 4;
+const setsCache = new Map<number, TennisSet[]>();
+
+/** Best of three sets, decided before the first serve. */
+export function tennisSets(fixture: Fixture): TennisSet[] {
+  const cached = setsCache.get(fixture.id);
+  if (cached) return cached;
+  const next = rng(`${fixture.id}:sets`);
+  const sets: TennisSet[] = [];
+  let won = { home: 0, away: 0 };
+  let t = 0;
+  while (won.home < 2 && won.away < 2) {
+    const winner = next() < fixture.homeRate ? "home" : "away";
+    const tiebreak = next() < 0.16;
+    const loserGames = tiebreak ? 6 : Math.floor(next() * 5);
+    const winGames = tiebreak ? 7 : loserGames === 5 ? 7 : 6;
+    const length = SET_MINUTES * ((winGames + loserGames) / 10);
+    sets.push({
+      winner,
+      games: winner === "home" ? [winGames, loserGames] : [loserGames, winGames],
+      start: t,
+      end: t + length,
+    });
+    won = { ...won, [winner]: won[winner] + 1 };
+    t += length + SET_BREAK;
+  }
+  setsCache.set(fixture.id, sets);
+  if (setsCache.size > 4000) setsCache.clear();
+  return sets;
+}
+
+function tennisState(fixture: Fixture, elapsed: number): MatchState {
+  const sets = tennisSets(fixture);
+  const done = sets.filter((s) => s.end <= elapsed);
+  const homeScore = done.filter((s) => s.winner === "home").length;
+  const awayScore = done.length - homeScore;
+  const current = sets.find((s) => s.start <= elapsed && elapsed < s.end);
+  const ended = done.length === sets.length;
+  const ordinal = ["1st", "2nd", "3rd"];
+  const lastEnd = done.length ? done[done.length - 1].end : -Infinity;
+  return {
+    phase: ended ? "ended" : current ? "live" : "break",
+    status: ended ? "ended" : current ? `${ordinal[sets.indexOf(current)]} set` : "pause",
+    clock: `${pad(elapsed)}:${pad((elapsed % 1) * 60)}`,
+    minute: Math.floor(elapsed),
+    homeScore,
+    awayScore,
+    // For tennis "remaining" is sets still needed by either player, scaled 0..1.
+    remaining: ended ? 0 : 1 - done.length / 3,
+    halfTime: null,
+    suspended: !ended && (elapsed - lastEnd) * 60 < 20,
+  };
+}
+
+/** Completed set scores, for period-by-period display. */
+export function tennisSetScores(fixture: Fixture, now: number) {
+  const elapsed = (now - fixture.kickoff) / MINUTE;
+  return tennisSets(fixture).filter((s) => s.end <= elapsed).map((s) => s.games);
 }
 
 // ─── Pricing ─────────────────────────────────────────────────────────────────
@@ -297,7 +395,32 @@ export type Probabilities = {
   cover: (hcp: number) => number;
 };
 
+function tennisProbabilities(fixture: Fixture, state: MatchState): Probabilities {
+  const p = fixture.homeRate;
+  // Enumerate the remaining sets of a best-of-three.
+  const outcomes: Array<{ h: number; a: number; prob: number }> = [];
+  const walk = (h: number, a: number, prob: number) => {
+    if (h === 2 || a === 2) { outcomes.push({ h, a, prob }); return; }
+    walk(h + 1, a, prob * p);
+    walk(h, a + 1, prob * (1 - p));
+  };
+  walk(state.homeScore, state.awayScore, 1);
+  const sum = (f: (o: { h: number; a: number }) => boolean) =>
+    outcomes.reduce((acc, o) => acc + (f(o) ? o.prob : 0), 0);
+  const home = sum((o) => o.h === 2);
+  return {
+    home,
+    draw: 0,
+    away: 1 - home,
+    over: (line) => sum((o) => o.h + o.a > line),
+    btts: 1,
+    firstHalf: null,
+    cover: (hcp) => sum((o) => o.h + hcp > o.a),
+  };
+}
+
 export function probabilities(fixture: Fixture, state: MatchState): Probabilities {
+  if (fixture.sport.key === "tennis") return tennisProbabilities(fixture, state);
   if (fixture.sport.key === "basketball") {
     const r = Math.max(state.remaining, 0.002);
     const muH = state.homeScore + fixture.homeRate * r;
@@ -363,7 +486,7 @@ export function probabilities(fixture: Fixture, state: MatchState): Probabilitie
 
   // First-half markets only make sense before the break.
   let firstHalf: Probabilities["firstHalf"] = null;
-  if (state.phase === "scheduled" || (state.phase === "live" && state.status === "1st half")) {
+  if (fixture.sport.key === "football" && (state.phase === "scheduled" || (state.phase === "live" && state.status === "1st half"))) {
     const rh = state.phase === "scheduled" ? 0.5 : Math.max(0, (45 - state.minute) / 90);
     const fhH = poissonPmf(fixture.homeRate * rh * 0.9, 8);
     const fhA = poissonPmf(fixture.awayRate * rh * 0.9, 8);

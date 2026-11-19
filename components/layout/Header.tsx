@@ -34,7 +34,7 @@ export function Header() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const authHasHydrated = useAuthStore((state) => state.hasHydrated);
   const currentUser = useUserStore((state) => state.currentUser);
-  const { openCreateAccount, openLogin } = useAuthModal();
+  const { openLogin } = useAuthModal();
 
   const balanceLabel = formatHeaderBalance(
     currentUser?.currency ?? "NGN",
@@ -57,7 +57,7 @@ export function Header() {
   return (
     <header className="app-header p-2">
       <Link href="/" aria-label="Go to home" className="inline-flex">
-        <PitchsideLogo size={30} />
+        <PitchsideLogo size={30} tone="light" />
       </Link>
       <div className="header-actions">
         <button
@@ -73,7 +73,7 @@ export function Header() {
         ) : isAuthenticated ? (
           <Link
             href="/account"
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--ink)] py-1.5 pl-1.5 pr-3.5 text-paper"
+            className="inline-flex items-center gap-2 rounded-full border border-[#ffffff]/15 bg-[#ffffff]/[0.07] py-1.5 pl-1.5 pr-3.5 text-[#fff]"
           >
             <span className="grid size-7 place-items-center rounded-full bg-[var(--lime)] font-heading text-[13px] font-extrabold text-[var(--ink)]">
               ₦
@@ -92,20 +92,11 @@ export function Header() {
               onClick={() => openLogin(currentPath)}
               onPointerEnter={preloadAuthModalViews}
               onPointerDown={preloadAuthModalViews}
-              className="custom-app-button btn-outline inline-flex items-center justify-center"
+              className="custom-app-button btn-gradient inline-flex items-center justify-center"
             >
               Log in
             </button>
-            <button
-              type="button"
-              onFocus={preloadAuthModalViews}
-              onClick={() => openCreateAccount(currentPath)}
-              onPointerEnter={preloadAuthModalViews}
-              onPointerDown={preloadAuthModalViews}
-              className="custom-app-button btn-gradient inline-flex items-center justify-center"
-            >
-              Sign up
-            </button>
+
           </>
         )}
       </div>

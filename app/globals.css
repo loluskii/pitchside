@@ -4356,3 +4356,36 @@ section.hot,
 .see-all-link, .fc-full-schedule { color: var(--pitch) !important; font-weight: 600; }
 .fc-header-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
 .fc-sub-filters { display: none !important; }
+
+/* ── Solid bands ── */
+.section-container { margin: 0; }
+.app-header {
+  background: var(--ink);
+  box-shadow: none;
+}
+.header-search-button { color: #fff; }
+.custom-app-button.btn-gradient { background: var(--lime); color: var(--ink); }
+section.hot {
+  background: var(--pitch-deep);
+  margin: 0 -10px;
+  padding: 18px 10px 16px;
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+}
+section.hot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% -10%, rgba(203, 234, 78, 0.22), transparent 45%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 36px, transparent 36px 72px);
+  pointer-events: none;
+}
+section.hot > * { position: relative; }
+section.hot .fc-uh-title { color: #fff; }
+section.hot .league-item { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+section.hot .league-item .league-item-name { color: rgba(255,255,255,0.75); }
+section.hot .league-item.active { background: var(--lime); border-color: var(--lime); }
+section.hot .league-item.active .league-item-name { color: var(--ink); }
+.featured-scroll { padding-left: 0; padding-right: 0; }

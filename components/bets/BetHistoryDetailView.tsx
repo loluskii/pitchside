@@ -209,7 +209,7 @@ function TrackerModal({
 export function BetHistoryDetailView({ betId }: { betId: string }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { openCreateAccount, openLogin } = useAuthModal();
+  const { openLogin } = useAuthModal();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const authHasHydrated = useAuthStore((state) => state.hasHydrated);
   const requestLoadByCode = useCouponStore((state) => state.requestLoadByCode);
@@ -322,13 +322,6 @@ export function BetHistoryDetailView({ betId }: { betId: string }) {
               className="rounded-lg bg-[var(--lime)] px-4 py-3 text-lg font-semibold text-white"
             >
               Log in
-            </button>
-            <button
-              type="button"
-              onClick={() => openCreateAccount(`/my-bets/${betId}`)}
-              className="rounded-lg border border-white/10 px-4 py-3 text-lg font-semibold text-white/82"
-            >
-              Create account
             </button>
           </div>
         </section>

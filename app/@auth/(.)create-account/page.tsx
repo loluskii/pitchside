@@ -1,3 +1,5 @@
-export default function CreateAccountAuthSlotPage() {
-  return null;
+import { redirect } from "next/navigation";
+
+export default function Page() {
+  redirect("/login");
 }

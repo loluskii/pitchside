@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Eye, EyeOff, Phone } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -13,9 +12,11 @@ import {
 import { authApi } from "@/lib/api/auth";
 import { normalizeLocalPhoneNumber } from "@/lib/auth/forms";
 import { extractAuthToken, extractResponseMessage } from "@/lib/auth/responses";
-import { buildAuthRouteHref, normalizeReturnUrl } from "@/lib/auth/session";
+import { normalizeReturnUrl } from "@/lib/auth/session";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
+
+export const DEMO_ACCOUNT = { phone: "8012345678", password: "Pitchside#2026" };
 
 export function LoginPageView({
   onClose,
@@ -63,7 +64,10 @@ export function LoginPageView({
       return;
     }
 
-    const username = normalizeLocalPhoneNumber(rawMobileNumber);
+    await logIn(normalizeLocalPhoneNumber(rawMobileNumber), password);
+  }
+
+  async function logIn(username: string, password: string) {
     setLoading(true);
     setAuthError(null);
 
@@ -119,12 +123,14 @@ export function LoginPageView({
             leadingIcon={<Phone className="app-icon" />}
             prefix="+234"
             placeholder="Phone number"
+            defaultValue={DEMO_ACCOUNT.phone}
           />
           <AuthField
             name="password"
             type={isPasswordVisible ? "text" : "password"}
             autoComplete="current-password"
             placeholder="Password"
+            defaultValue={DEMO_ACCOUNT.password}
             suffix={(
               <button
                 type="button"
@@ -137,23 +143,12 @@ export function LoginPageView({
             )}
           />
 
-          <div className="-mt-2 text-right">
-            {onForgotPassword ? (
-              <button
-                type="button"
-                onClick={onForgotPassword}
-                className="app-text-caption font-semibold text-[var(--primary-orange)]"
-              >
-                Forgot Password?
-              </button>
-            ) : (
-              <Link
-                href={buildAuthRouteHref("/forgot-password", authReturnUrl)}
-                className="app-text-caption font-semibold text-[var(--primary-orange)]"
-              >
-                Forgot Password?
-              </Link>
-            )}
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--chalk)] px-4 py-3 text-[12.5px] leading-relaxed text-[var(--ink-2)]">
+            <p className="font-semibold text-[var(--ink)]">Demo account</p>
+            <p className="mt-0.5 font-mono text-[12px]">
+              +234 {DEMO_ACCOUNT.phone} · {DEMO_ACCOUNT.password}
+            </p>
+            <p className="mt-1 text-[var(--ink-3)]">Starts with a ₦50,000 play balance. No real money is used.</p>
           </div>
 
           {authError ? (
@@ -170,25 +165,14 @@ export function LoginPageView({
             {loading ? "Logging in..." : "Log In"}
           </AuthPrimaryButton>
 
-          <p className="app-text-body pt-2 text-center text-[var(--text-dim)]">
-            Don&apos;t have an account?{" "}
-            {onSwitchToCreateAccount ? (
-              <button
-                type="button"
-                onClick={onSwitchToCreateAccount}
-                className="font-bold text-[var(--primary-orange)]"
-              >
-                Sign Up
-              </button>
-            ) : (
-              <Link
-                href={buildAuthRouteHref("/create-account", authReturnUrl)}
-                className="font-bold text-[var(--primary-orange)]"
-              >
-                Sign Up
-              </Link>
-            )}
-          </p>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => void logIn(DEMO_ACCOUNT.phone, DEMO_ACCOUNT.password)}
+            className="w-full rounded-full border border-[var(--ink)] bg-[var(--ink)] py-3 text-[14px] font-semibold text-[#fff] transition-opacity disabled:opacity-50"
+          >
+            Continue with demo account
+          </button>
         </fieldset>
       </form>
     </AuthShell>
