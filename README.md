@@ -4,7 +4,7 @@ A mobile-first sportsbook running on a live match simulation. Fixtures kick off 
 
 Every fixture carries a **SIM** badge. Clubs and competitions are fictional, balances are play money, and no payments exist anywhere in the product.
 
-**Live:** https://pitchside-app.vercel.app
+**Live:** https://pitchside-app-alpha.vercel.app
 
 ## What's interesting here
 
