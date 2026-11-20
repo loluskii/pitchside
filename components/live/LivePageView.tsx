@@ -162,8 +162,8 @@ export function LivePageView({ initialSportId = "1" }: { initialSportId?: string
     ? formatHomeSpecifierType(String(activeMarket?.specifier ?? ""))
     : "";
   return (
-    <>
-      <div className="sticky top-0 z-40 -mx-3 bg-[#F6F6F5] px-3 pt-3 shadow-[0_10px_24px_rgba(0, 0, 0, 0.126)]">
+    <div className="live-deep live-deep-page">
+      <div className="sticky top-0 z-40 -mx-3 bg-[#0F241B] px-3 pt-3 shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button type="button" onClick={() => router.back()} aria-label="Back">
@@ -353,6 +353,6 @@ export function LivePageView({ initialSportId = "1" }: { initialSportId?: string
           </section>
         )}
       </div>
-    </>
+    </div>
   );
 }

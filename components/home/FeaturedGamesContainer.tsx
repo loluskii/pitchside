@@ -100,10 +100,10 @@ export function FeaturedGamesContainer() {
       if (!target) return;
 
       markProgrammaticScroll();
-      target.scrollIntoView({
+      // Scroll only the horizontal row. scrollIntoView would also move the page.
+      scroller.scrollTo({
+        left: scroller.scrollLeft + target.getBoundingClientRect().left - scroller.getBoundingClientRect().left,
         behavior: "smooth",
-        block: "nearest",
-        inline: "start",
       });
     },
     [markProgrammaticScroll],
@@ -149,17 +149,20 @@ export function FeaturedGamesContainer() {
     }
   }, [activeTournamentId]);
 
+  const currentTournamentKey = currentTournament ? String(activeTournamentId ?? "") : "";
   useEffect(() => {
-    if (!leagueTabsRef.current || !currentTournament) return;
-    const activePill = leagueTabsRef.current.querySelector<HTMLElement>(
-      ".league-item.active",
-    );
-    activePill?.scrollIntoView({
+    const row = leagueTabsRef.current;
+    if (!row || !currentTournamentKey) return;
+    const activePill = row.querySelector<HTMLElement>(".league-item.active");
+    if (!activePill) return;
+    // Centre the active pill inside its own row without touching the page scroll.
+    const rowRect = row.getBoundingClientRect();
+    const pillRect = activePill.getBoundingClientRect();
+    row.scrollTo({
+      left: row.scrollLeft + pillRect.left - rowRect.left - (rowRect.width - pillRect.width) / 2,
       behavior: "smooth",
-      block: "nearest",
-      inline: "center",
     });
-  }, [currentTournament]);
+  }, [currentTournamentKey]);
 
   useEffect(
     () => () => {

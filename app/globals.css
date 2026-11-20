@@ -4389,3 +4389,114 @@ section.hot .league-item .league-item-name { color: rgba(255,255,255,0.75); }
 section.hot .league-item.active { background: var(--lime); border-color: var(--lime); }
 section.hot .league-item.active .league-item-name { color: var(--ink); }
 .featured-scroll { padding-left: 0; padding-right: 0; }
+
+/* ── Live: deep night-pitch theme ───────────────────────────────────────────
+   Scoped token swap so every fixture row, odds button and pill inside a
+   .live-deep container renders light-on-dark without per-component edits.
+   Custom properties resolve where they're declared, so dependents are
+   re-declared here too. */
+.live-deep {
+  --live-bg: #0A1A13;
+  --live-bg-2: #0F241B;
+  --live-card: #13291F;
+  --live-line: rgba(242, 241, 236, 0.08);
+
+  --ink: #F2F1EC;
+  --ink-2: rgba(242, 241, 236, 0.82);
+  --ink-3: rgba(242, 241, 236, 0.55);
+  --paper: var(--live-card);
+  --color-white: #F2F1EC;
+  --foreground: #F2F1EC;
+  --surface: var(--live-card);
+  --surface-foreground: #F2F1EC;
+  --border: var(--live-line);
+  --border-dim: var(--live-line);
+  --text-dim: rgba(242, 241, 236, 0.55);
+  --text-orange: var(--lime);
+  --color-surface-elevated: #13291F;
+  --color-surface-input: #13291F;
+  --color-surface-active: #183427;
+  --color-surface-dialog: #0F241B;
+  --bg-neutral: rgba(242, 241, 236, 0.08);
+  --primary-orange: var(--lime);
+  --bg-card: rgba(242, 241, 236, 0.045);
+
+  background:
+    radial-gradient(120% 60% at 100% 0%, rgba(12, 122, 77, 0.35), transparent 60%),
+    linear-gradient(180deg, var(--live-bg-2), var(--live-bg));
+  color: #F2F1EC;
+}
+
+/* Home band: full bleed, with the lime pulse kept */
+.live-deep.section-container {
+  margin: 0 -10px !important;
+  padding: 18px 10px 14px;
+  border-radius: 0;
+}
+.live-deep .fc-uh-title { color: #F2F1EC; }
+.live-deep .fc-uh-sports { background: rgba(242, 241, 236, 0.07); }
+.live-deep .fc-uh-sport { color: rgba(242, 241, 236, 0.6); }
+.live-deep .fc-uh-sport.active { background: var(--lime); color: #121A16; box-shadow: none; }
+
+.live-deep .fc-mp-pill { border-color: rgba(242, 241, 236, 0.16); color: rgba(242, 241, 236, 0.8); }
+.live-deep .fc-mp-pill.active { background: #F2F1EC; border-color: #F2F1EC; color: #121A16; }
+.live-deep .home-market-header-body { border-bottom-color: var(--live-line); }
+
+.live-deep .live-match-row,
+.live-deep .fc-match-card { border-bottom-color: var(--live-line); }
+.live-deep .lm-time-live { color: #FF6B6F !important; }
+.live-deep .lm-score-cell { color: rgba(242, 241, 236, 0.6); }
+.live-deep .lm-score-cell.is-total { color: var(--lime); }
+
+.live-deep .app-odd-btn,
+.live-deep .lm-odd-btn,
+.live-deep .fc-odd-btn {
+  background: var(--live-card);
+  border-color: rgba(242, 241, 236, 0.08);
+  box-shadow: none;
+  --odds-flash-base-bg: var(--live-card);
+}
+.live-deep .app-odd-btn:hover,
+.live-deep .lm-odd-btn:hover,
+.live-deep .fc-odd-btn:hover { border-color: var(--lime); }
+.live-deep .app-odd-btn.selected,
+.live-deep .lm-odd-btn.selected,
+.live-deep .fc-odd-btn.selected {
+  color: #121A16 !important;
+  --app-odd-label-color: #121A16;
+  --app-odd-value-color: #121A16;
+  --odds-flash-base-text: #121A16;
+}
+.live-deep .fc-odd-btn.selected .fc-odd-val { color: #121A16; }
+.live-deep .app-odd-btn.odds-change-up .app-odd-btn-value,
+.live-deep .fc-odd-btn.odds-change-up .fc-odd-val { color: #7BE3A4 !important; }
+.live-deep .app-odd-btn.odds-change-down .app-odd-btn-value,
+.live-deep .fc-odd-btn.odds-change-down .fc-odd-val { color: #FF8A8E !important; }
+
+/* Live page */
+.live-deep-page { margin: -12px -10px 0; min-height: 100dvh; padding: 0 12px 96px; }
+.live-deep .live-page-sport-tab { color: rgba(242, 241, 236, 0.65); }
+.live-deep .live-page-sport-tab.active { color: #F2F1EC; }
+.live-deep .live-page-market-pill { border-color: rgba(242, 241, 236, 0.16); color: rgba(242, 241, 236, 0.8); background: transparent; }
+.live-deep .live-page-market-pill.active { background: #F2F1EC; color: #121A16; border-color: #F2F1EC; }
+
+.live-deep .live-page-market-header { background: rgba(0, 0, 0, 0.28); }
+.live-deep .app-odd-btn,
+.live-deep .lm-odd-btn {
+  color: #F2F1EC;
+  --odds-flash-base-text: #F2F1EC;
+  --app-odd-label-color: rgba(242, 241, 236, 0.55);
+  --app-odd-value-color: #F2F1EC;
+}
+.live-deep .fc-odd-val { color: #F2F1EC; }
+
+@keyframes pitchsideLiveFlashUp {
+  0% { background: rgba(80, 200, 130, 0.28); border-color: rgba(123, 227, 164, 0.7); }
+  100% { background: var(--odds-flash-base-bg); }
+}
+@keyframes pitchsideLiveFlashDown {
+  0% { background: rgba(224, 57, 62, 0.28); border-color: rgba(255, 138, 142, 0.7); }
+  100% { background: var(--odds-flash-base-bg); }
+}
+.live-deep .odds-change-up { animation-name: pitchsideLiveFlashUp; }
+.live-deep .odds-change-down { animation-name: pitchsideLiveFlashDown; }

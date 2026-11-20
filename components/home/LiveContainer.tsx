@@ -103,7 +103,7 @@ export function LiveContainer() {
     ? formatHomeSpecifierType(String(activeMarket?.specifier ?? ""))
     : "";
   return (
-    <section className="section-container">
+    <section className="section-container live-deep">
       <div className="fc-live-header">
         <div className="fc-uh-title">
           Live <div className="live-indicator-dot" />

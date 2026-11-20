@@ -79,6 +79,31 @@ export const PHOTOS = {
     credit: "Leo_Visions",
     page: "https://unsplash.com/photos/ZRYIdZUMDVg",
   },
+  fansCheering: {
+    id: "photo-1766756467595-fd3f1f62d562",
+    credit: "Josip Ivanković",
+    page: "https://unsplash.com/photos/R7lCxjyEVz0",
+  },
+  fansBanner: {
+    id: "photo-1759156207851-ff2c0a158797",
+    credit: "Ruben Mavarez",
+    page: "https://unsplash.com/photos/L_Z0Sb2xcj0",
+  },
+  dunk: {
+    id: "photo-1689894755862-730f4be37a6d",
+    credit: "Yash Jeebaun",
+    page: "https://unsplash.com/photos/o_8LV06JioI",
+  },
+  striker: {
+    id: "photo-1748112445699-cb7f94e78ed4",
+    credit: "Salah Regouane",
+    page: "https://unsplash.com/photos/HNdCQpsRvSA",
+  },
+  watchParty: {
+    id: "photo-1556202696-757728f6d972",
+    credit: "Mariana Fernandes",
+    page: "https://unsplash.com/photos/0b5nPhD4T3c",
+  },
 } satisfies Record<string, Photo>;
 
 export type PhotoKey = keyof typeof PHOTOS;
