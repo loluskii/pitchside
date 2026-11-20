@@ -120,10 +120,10 @@ export function SpotKick() {
             })}
           </div>
           <p className="mt-3 text-center text-sm font-semibold text-[var(--chalk)]">
-            {phase === "idle" && "Place a stake, then pick your corner."}
-            {phase === "shooting" && (busy ? "…" : goals ? `Streak at ${current.toFixed(2)}× — next goal ${next.toFixed(2)}×` : "Pick a corner. Goal pays 1.45×.")}
-            {phase === "missed" && "Saved! The streak is over."}
-            {phase === "banked" && `Banked ${naira(amount * current)} at ${current.toFixed(2)}×`}
+            {phase === "idle" && "Place a bet, then pick a corner."}
+            {phase === "shooting" && (busy ? "…" : goals ? `${current.toFixed(2)}× now. Next goal pays ${next.toFixed(2)}×.` : "Pick a corner. A goal pays 1.45×.")}
+            {phase === "missed" && "Saved. Round over."}
+            {phase === "banked" && `You won ${naira(amount * current)}`}
           </p>
         </div>
       </div>
@@ -137,7 +137,7 @@ export function SpotKick() {
           disabled={!goals || busy}
           className="h-14 w-full rounded-2xl bg-[var(--lime)] font-heading text-lg font-extrabold text-[var(--ink)] disabled:opacity-40"
         >
-          {goals ? `Bank ${naira(amount * current)}` : "Score once to bank"}
+          {goals ? `Cash out ${naira(amount * current)}` : "Score to cash out"}
         </button>
       ) : (
         <button
@@ -145,7 +145,7 @@ export function SpotKick() {
           onClick={start}
           className="h-14 w-full rounded-2xl bg-[var(--chalk)] font-heading text-lg font-extrabold text-[var(--ink)]"
         >
-          Step up · {naira(amount)}
+          Bet {naira(amount)}
         </button>
       )}
     </GameShell>

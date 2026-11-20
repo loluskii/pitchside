@@ -51,7 +51,7 @@ export function Dice() {
             {roll === null ? "--.--" : roll.toFixed(2)}
           </span>
           <p className="mt-1 h-4 text-xs font-semibold text-[var(--chalk)]/60">
-            {!rolling && won !== null ? (won ? `Won ${naira(amount * multiplier)}` : "No luck this roll") : ""}
+            {!rolling && won !== null ? (won ? `You won ${naira(amount * multiplier)}` : "You lost this roll") : ""}
           </p>
         </div>
 
@@ -115,7 +115,7 @@ export function Dice() {
         disabled={rolling}
         className="h-14 w-full rounded-2xl bg-[var(--lime)] font-heading text-lg font-extrabold text-[var(--ink)] disabled:opacity-60"
       >
-        {rolling ? "Rolling…" : `Roll · ${naira(amount)}`}
+        {rolling ? "Rolling…" : `Roll for ${naira(amount)}`}
       </button>
 
       {history.length ? (

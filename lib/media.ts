@@ -1,5 +1,6 @@
 // Photography, all free to use under the Unsplash License (https://unsplash.com/license).
-// Served straight from Unsplash's image CDN with size/format parameters.
+// Copies live in public/photos (WebP at 480/960/1600px), written by scripts/fetch-photos.mjs.
+// To add a photo: add an entry here and push; the "Fetch photos" workflow commits the files.
 
 type Photo = { id: string; credit: string; page: string };
 
@@ -108,15 +109,16 @@ export const PHOTOS = {
 
 export type PhotoKey = keyof typeof PHOTOS;
 
-export function photo(key: PhotoKey, width = 800, height?: number) {
-  const params = new URLSearchParams({
-    auto: "format",
-    fit: "crop",
-    w: String(width),
-    q: "70",
-  });
-  if (height) params.set("h", String(height));
-  return `https://images.unsplash.com/${PHOTOS[key].id}?${params.toString()}`;
+const PHOTO_WIDTHS = [480, 960, 1600] as const;
+
+/**
+ * Local URL for a photo, at the smallest stored width that covers `width`.
+ * `height` is accepted for call-site clarity; cropping is done with CSS object-fit.
+ */
+export function photo(key: PhotoKey, width = 800, _height?: number) {
+  void _height;
+  const size = PHOTO_WIDTHS.find((w) => w >= width) ?? PHOTO_WIDTHS[PHOTO_WIDTHS.length - 1];
+  return `/photos/${key}-${size}.webp`;
 }
 
 export const SPORT_PHOTO: Record<string, PhotoKey> = {
@@ -125,3 +127,8 @@ export const SPORT_PHOTO: Record<string, PhotoKey> = {
   "ice-hockey": "hockey",
   tennis: "tennis",
 };
+
+/** srcSet covering every stored width, for use with a matching `sizes` attribute. */
+export function photoSrcSet(key: PhotoKey) {
+  return PHOTO_WIDTHS.map((w) => `/photos/${key}-${w}.webp ${w}w`).join(", ");
+}

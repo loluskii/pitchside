@@ -15,6 +15,17 @@ const lastStatus = new Map<string, string>();
 const lastSuspended = new Map<string, boolean>();
 let listener: Listener | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
+let starting = false;
+let tickCount = 0;
+const lastScores = new Map<string, string>();
+const lastMarkets = new Map<string, string>();
+
+/** Matches are split across two groups so each tick only reprices half of them. */
+function groupOf(matchId: string) {
+  let h = 0;
+  for (let i = 0; i < matchId.length; i++) h = (h * 31 + matchId.charCodeAt(i)) | 0;
+  return Math.abs(h) % 2;
+}
 
 function publishMatch(sportId: string, matchId: string, wanted: Set<string>, now: number) {
   const fixture = fixtureById(matchId);
@@ -35,7 +46,11 @@ function publishMatch(sportId: string, matchId: string, wanted: Set<string>, now
     listener(`${base}/match_status`, header);
   }
 
-  if (wanted.has(`${base}/scores`)) {
+  const scoreKey = `${header.home_score}:${header.away_score}:${state.status}`;
+  // First sighting: the page has just loaded this match fresh, so only record it.
+  if (!lastScores.has(matchId)) lastScores.set(matchId, scoreKey);
+  if (wanted.has(`${base}/scores`) && lastScores.get(matchId) !== scoreKey) {
+    lastScores.set(matchId, scoreKey);
     listener(`${base}/scores`, {
       match_id: header.match_id,
       event_time: header.event_time,
@@ -50,10 +65,8 @@ function publishMatch(sportId: string, matchId: string, wanted: Set<string>, now
   }
   lastSuspended.set(matchId, suspended);
 
-  if (!suspended && wanted.has(`${base}/markets`)) {
-    listener(`${base}/markets`, {
-      ...header,
-      markets: priceFixture(fixture, now, state).map((market) => ({
+  if (!suspended && wanted.has(`${base}/markets`) && groupOf(matchId) === tickCount % 2) {
+    const markets = priceFixture(fixture, now, state).map((market) => ({
         id: market.marketID,
         market_id: market.marketID,
         market_name: market.marketName,
@@ -67,13 +80,21 @@ function publishMatch(sportId: string, matchId: string, wanted: Set<string>, now
           odds: outcome.odds,
           active: outcome.active,
         })),
-      })),
-    });
+      }));
+    // Only publish when a price or status actually moved.
+    const signature = markets
+      .map((m) => `${m.market_id}|${m.specifier}|${m.status_name}|${m.outcomes.map((o) => `${o.odds}${o.active}`).join(",")}`)
+      .join(";");
+    const previous = lastMarkets.get(matchId);
+    lastMarkets.set(matchId, signature);
+    if (previous === undefined || previous === signature) return;
+    listener(`${base}/markets`, { ...header, markets });
   }
 }
 
 function tick() {
   const now = Date.now();
+  tickCount += 1;
   const byMatch = new Map<string, { sportId: string; topics: Set<string> }>();
   topics.forEach((topic) => {
     const m = topic.match(/^sports\/(\d+)\/match\/(\d+)\//);
@@ -87,8 +108,20 @@ function tick() {
 
 export function connectLiveFeed(onMessage: Listener) {
   listener = onMessage;
-  if (!timer && typeof window !== "undefined") {
-    timer = setInterval(tick, TICK_MS);
+  if (timer || starting || typeof window === "undefined") return;
+  starting = true;
+  // Let the first paint and hydration finish before the feed starts pushing updates.
+  const start = () => {
+    starting = false;
+    if (!timer) timer = setInterval(tick, TICK_MS);
+  };
+  const idle = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number })
+    .requestIdleCallback;
+  if (document.readyState === "complete") {
+    if (idle) idle(start, { timeout: 4000 });
+    else setTimeout(start, 1500);
+  } else {
+    window.addEventListener("load", () => (idle ? idle(start, { timeout: 4000 }) : setTimeout(start, 1500)), { once: true });
   }
 }
 

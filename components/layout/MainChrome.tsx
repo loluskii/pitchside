@@ -76,6 +76,7 @@ export function MainChrome({ children }: { children: React.ReactNode }) {
       <main
         className={cn(
           "flex flex-col gap-y-3 px-2.5 pt-3",
+          shouldShowFooter && "with-footer",
           isAccountRoute && "p-0 gap-y-0",
           !isChromelessRoute && showMobileNavigation && "pb-20",
         )}

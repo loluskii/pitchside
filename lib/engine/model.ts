@@ -371,7 +371,7 @@ function normalCdf(x: number) {
 
 /** In-play prices move every 12s; pre-match prices settle and move every 4 minutes. */
 const LIVE_DRIFT_MS = 12_000;
-const PREMATCH_DRIFT_MS = 240_000;
+export const PREMATCH_DRIFT_MS = 240_000;
 
 /** Small, smooth drift so prices move like a real feed. */
 function drift(fixture: Fixture, key: string, now: number) {

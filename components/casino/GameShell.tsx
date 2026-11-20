@@ -157,7 +157,7 @@ export function GameShell({
         {hasHydrated && !isAuthenticated ? (
           <div className="rounded-3xl bg-[rgba(242,241,236,0.07)] p-5 text-center">
             <p className="font-heading text-lg font-bold">Log in to play</p>
-            <p className="mt-1 text-sm text-[var(--chalk)]/60">Games use your play balance. The demo account starts with ₦50,000.</p>
+            <p className="mt-1 text-sm text-[var(--chalk)]/60">Use the demo account to play. It comes with a ₦50,000 balance.</p>
             <button
               type="button"
               onClick={() => openLogin(`/casino/${game.slug}`)}

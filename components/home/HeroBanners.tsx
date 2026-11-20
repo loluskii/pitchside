@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { photo, type PhotoKey } from "@/lib/media";
+import { photo, photoSrcSet, type PhotoKey } from "@/lib/media";
 import { useLiveCounter } from "@/lib/query/hooks/useSports";
 
 type LiveCounterResponse = { data?: { total?: number } };
@@ -26,16 +26,16 @@ const BANNERS: Banner[] = [
     href: "/live",
     photo: "fansCheering",
     focus: "center 35%",
-    cta: "Go live",
+    cta: "Bet live",
     render: (live) => (
       <>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--flare)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]">
           <span className="size-1.5 animate-pulse rounded-full bg-[#fff]" /> Live now
         </span>
         <h2 className="mt-2 font-heading text-[30px] font-extrabold leading-[0.95] tracking-[-0.03em]">
-          {live ?? "Dozens of"} matches.
+          {live === undefined ? "Matches" : `${live} ${live === 1 ? "match" : "matches"}`}
           <br />
-          <span className="text-[var(--lime)]">Zero waiting.</span>
+          <span className="text-[var(--lime)]">in play now</span>
         </h2>
       </>
     ),
@@ -45,16 +45,16 @@ const BANNERS: Banner[] = [
     href: "/sports/basketball",
     photo: "dunk",
     focus: "center 30%",
-    cta: "Basketball",
+    cta: "View games",
     render: () => (
       <>
         <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--amber)]">Basketball</span>
         <h2 className="mt-1.5 font-heading text-[34px] font-extrabold leading-[0.9] tracking-[-0.03em]">
-          Above
+          Bet on
           <br />
-          the rim.
+          basketball
         </h2>
-        <p className="mt-1.5 max-w-[190px] text-[12px] leading-4 text-[#fff]/75">Spreads and totals that move with every possession.</p>
+        <p className="mt-1.5 max-w-[190px] text-[12px] leading-4 text-[#fff]/75">Money line, spreads and totals on every game.</p>
       </>
     ),
   },
@@ -62,15 +62,15 @@ const BANNERS: Banner[] = [
     key: "liftoff",
     href: "/casino/liftoff",
     photo: "nightFlight",
-    cta: "Play Liftoff",
+    cta: "Play now",
     render: () => (
       <div className="flex items-end justify-between gap-3">
         <div>
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--lime)]">Casino original</span>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--lime)]">Casino</span>
           <h2 className="mt-1.5 font-heading text-[28px] font-extrabold leading-[0.95] tracking-[-0.03em]">
-            Cash out at 2×.
+            Liftoff
             <br />
-            Or hold your nerve.
+            <span className="text-[20px] font-bold tracking-[-0.01em] text-[#fff]/85">Cash out before it crashes</span>
           </h2>
         </div>
       </div>
@@ -81,16 +81,16 @@ const BANNERS: Banner[] = [
     href: "/sports/football?period=today",
     photo: "striker",
     focus: "center 40%",
-    cta: "Today's football",
+    cta: "See matches",
     render: () => (
       <>
         <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--lime)]">Football</span>
         <h2 className="mt-1.5 font-heading text-[30px] font-extrabold leading-[0.95] tracking-[-0.03em]">
-          Kick-off
+          Today&apos;s
           <br />
-          every hour.
+          football
         </h2>
-        <p className="mt-1.5 max-w-[200px] text-[12px] leading-4 text-[#fff]/75">Eight leagues, three continents, round the clock.</p>
+        <p className="mt-1.5 max-w-[200px] text-[12px] leading-4 text-[#fff]/75">Premier Division, Liga Primera, Serie Uno and more.</p>
       </>
     ),
   },
@@ -99,14 +99,14 @@ const BANNERS: Banner[] = [
     href: "/load-code",
     photo: "watchParty",
     focus: "center 45%",
-    cta: "Load a code",
+    cta: "Load code",
     render: () => (
       <>
-        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--amber)]">Booking codes</span>
+        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--amber)]">Booking code</span>
         <h2 className="mt-1.5 font-heading text-[28px] font-extrabold leading-[0.95] tracking-[-0.03em]">
-          Your mate&apos;s ticket,
+          Got a
           <br />
-          one code away.
+          booking code?
         </h2>
       </>
     ),
@@ -127,7 +127,10 @@ function BannerArt({ name }: { name: string }) {
   }
   if (name === "basketball") {
     return (
-      <div aria-hidden="true" className="absolute -right-12 top-0 h-full w-40 -skew-x-12 bg-[var(--amber)]/85 mix-blend-multiply" />
+      <>
+        <div aria-hidden="true" className="absolute -right-6 top-0 h-full w-10 -skew-x-12 bg-[var(--amber)]" />
+        <div aria-hidden="true" className="absolute right-8 top-0 h-full w-2 -skew-x-12 bg-[var(--amber)]/70" />
+      </>
     );
   }
   if (name === "liftoff") {
@@ -219,14 +222,17 @@ export function HeroBanners() {
           <Link
             key={banner.key}
             href={banner.href}
-            aria-label={`${banner.cta} (${i + 1} of ${BANNERS.length})`}
             className="relative h-[200px] w-full shrink-0 snap-start overflow-hidden bg-[var(--ink)] text-[#fff]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={photo(banner.photo, 960, 480)}
+              srcSet={photoSrcSet(banner.photo)}
+              sizes="(max-width: 480px) 100vw, 456px"
               alt=""
               loading={i === 0 ? "eager" : "lazy"}
+              fetchPriority={i === 0 ? "high" : "low"}
+              decoding="async"
               className="absolute inset-0 h-full w-full object-cover"
               style={{ objectPosition: banner.focus ?? "center" }}
             />
@@ -241,15 +247,18 @@ export function HeroBanners() {
           </Link>
         ))}
       </div>
-      <div className="absolute bottom-4 right-4 flex gap-1.5">
+      <div className="absolute bottom-3 right-3 flex">
         {BANNERS.map((banner, i) => (
           <button
             key={banner.key}
             type="button"
             aria-label={`Show banner ${i + 1}`}
+            aria-current={i === index}
             onClick={() => goTo(i)}
-            className={`h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-[var(--lime)]" : "w-1.5 bg-[#fff]/45"}`}
-          />
+            className="flex h-6 min-w-6 items-center justify-center"
+          >
+            <span className={`h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-[var(--lime)]" : "w-1.5 bg-[#fff]/45"}`} />
+          </button>
         ))}
       </div>
     </section>

@@ -11,6 +11,7 @@ import {
   toOdds,
   type Fixture,
   type MatchState,
+  PREMATCH_DRIFT_MS,
 } from "./model";
 
 type OutcomeDef = { id: number; name: string; label: string; p: number };
@@ -269,7 +270,26 @@ const MARKET_BUILDERS = {
 } as const;
 
 /** Fully priced markets for a fixture at `now`. */
+// Pre-match prices only move once per drift window, so pricing is cached per window.
+const prematchPrices = new Map<string, FeedMarket[]>();
+
+function copyMarkets(markets: FeedMarket[]): FeedMarket[] {
+  return markets.map((market) => ({ ...market, outcomes: market.outcomes.map((outcome) => ({ ...outcome })) }) as FeedMarket);
+}
+
 export function priceFixture(fixture: Fixture, now: number, state = matchState(fixture, now)): FeedMarket[] {
+  if (state.phase !== "scheduled") return computePrices(fixture, now, state);
+  const key = `${fixture.id}:${Math.floor(now / PREMATCH_DRIFT_MS)}`;
+  let cached = prematchPrices.get(key);
+  if (!cached) {
+    if (prematchPrices.size > 4000) prematchPrices.clear();
+    cached = computePrices(fixture, now, state);
+    prematchPrices.set(key, cached);
+  }
+  return copyMarkets(cached);
+}
+
+function computePrices(fixture: Fixture, now: number, state: ReturnType<typeof matchState>): FeedMarket[] {
   const defs = MARKET_BUILDERS[fixture.sport.key](fixture, state);
   const frozen = state.suspended || state.phase === "ended";
   return defs.map((def) => ({

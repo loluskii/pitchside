@@ -16,8 +16,8 @@ export const CASINO_GAMES: CasinoGame[] = [
   {
     slug: "liftoff",
     name: "Liftoff",
-    tagline: "Cash out before it lands",
-    blurb: "The multiplier climbs from 1.00×. Bank it whenever you like — if the flight ends first, the stake is gone.",
+    tagline: "Cash out before it crashes",
+    blurb: "The multiplier starts at 1.00× and keeps rising until the round crashes. Cash out before then to win your stake times the multiplier.",
     photo: "nightFlight",
     accent: "#CBEA4E",
     rtp: "97%",
@@ -26,8 +26,8 @@ export const CASINO_GAMES: CasinoGame[] = [
   {
     slug: "spot-kick",
     name: "Spot Kick",
-    tagline: "Beat the keeper, build the streak",
-    blurb: "Pick a corner. Every goal multiplies your stake by 1.45×. Five in a row and you walk off with 6.5×.",
+    tagline: "Pick a corner and beat the keeper",
+    blurb: "Each goal multiplies your stake by 1.45×. Cash out after any goal, or score all five for 6.5×. A save ends the round.",
     photo: "goalkeeper",
     accent: "#E0393E",
     rtp: "97%",
@@ -36,8 +36,8 @@ export const CASINO_GAMES: CasinoGame[] = [
   {
     slug: "dice",
     name: "Dice Duel",
-    tagline: "Set the odds yourself",
-    blurb: "Choose a target and roll over or under it. The tighter the window, the bigger the payout.",
+    tagline: "Roll over or under your number",
+    blurb: "Pick a number between 2 and 98, then choose over or under. The lower your chance of winning, the higher the payout.",
     photo: "dice",
     accent: "#F2B33D",
     rtp: "99%",
@@ -46,8 +46,8 @@ export const CASINO_GAMES: CasinoGame[] = [
   {
     slug: "hi-lo",
     name: "Hi-Lo",
-    tagline: "Higher or lower, card by card",
-    blurb: "Call whether the next card beats the last. Chain correct calls and cash out before the deck turns on you.",
+    tagline: "Guess if the next card is higher or lower",
+    blurb: "Every correct guess raises your multiplier. Cash out whenever you want. A wrong guess or a tie ends the round.",
     photo: "cards",
     accent: "#7FB6FF",
     rtp: "97%",
@@ -56,9 +56,9 @@ export const CASINO_GAMES: CasinoGame[] = [
 ];
 
 export const LOBBY_EXTRAS: { title: string; photo: PhotoKey }[] = [
-  { title: "Table games", photo: "roulette" },
-  { title: "Poker nights", photo: "poker" },
-  { title: "Slots floor", photo: "slots" },
+  { title: "Roulette", photo: "roulette" },
+  { title: "Poker", photo: "poker" },
+  { title: "Slots", photo: "slots" },
 ];
 
 export function gameBySlug(slug: string) {

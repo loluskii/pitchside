@@ -224,14 +224,14 @@
   /* Pitchside palette */
   --ink: #121A16;
   --ink-2: #3D4741;
-  --ink-3: #6B746E;
+  --ink-3: #5C655F;
   --chalk: #F2F1EC;
   --paper: #FFFFFF;
   --pitch: #0C7A4D;
   --pitch-deep: #08553A;
   --lime: #CBEA4E;
   --lime-deep: #A9CC2A;
-  --flare: #E0393E;
+  --flare: #C92F35;
   --amber: #966800;
 
   /* Core palette (shadcn) */
@@ -4507,9 +4507,9 @@ section.hot .featured-card { box-shadow: 0 1px 2px rgba(18, 26, 22, 0.05), 0 8px
 /* Slip bar: docks above the bottom nav, never over the odds columns. */
 .slip-bar-above-nav { bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); }
 .slip-bar-bottom { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
-body:has(.slip-bar) main { padding-bottom: 136px; }
-body:has(.slip-bar-bottom) .live-deep-page { padding-bottom: 80px; }
-body:has(.slip-bar) .back-to-top-button { bottom: calc(env(safe-area-inset-bottom, 0px) + 8.5rem); }
+body.has-slip main { padding-bottom: 136px; }
+body.has-slip .live-deep-page { padding-bottom: 80px; }
+body.has-slip .back-to-top-button { bottom: calc(env(safe-area-inset-bottom, 0px) + 8.5rem); }
 
 /* Live rows: period label and league line hard-coded dark in the base skin. */
 .lm-status { color: var(--ink); }
@@ -4528,14 +4528,14 @@ body:has(.slip-bar) .back-to-top-button { bottom: calc(env(safe-area-inset-botto
 .live-deep .lm-live-market-size { color: rgba(242, 241, 236, 0.62); }
 
 /* Footer always reaches the bottom of the screen, edge to edge, on short pages too. */
-main:has(> .page-footer:last-child) {
+main.with-footer {
   min-height: calc(100dvh - 60px);
   padding-bottom: 0;
 }
 main > .page-footer:last-child { margin-top: auto; }
 main.p-3 > .page-footer { margin-inline: -12px; }
-body:has(.slip-bar) main:has(> .page-footer:last-child) { padding-bottom: 0; }
-body:has(.slip-bar) .page-footer { padding-bottom: 180px; }
+body.has-slip main.with-footer { padding-bottom: 0; }
+body.has-slip .page-footer { padding-bottom: 180px; }
 
 /* Selected always wins over the price-move tint. */
 .app-odd-btn.selected.odds-change-up,
@@ -4550,3 +4550,10 @@ body:has(.slip-bar) .page-footer { padding-bottom: 180px; }
 .live-deep .app-odd-btn:not(.selected):not(.odds-change-up):not(.odds-change-down) .app-odd-btn-value { color: #F2F1EC; }
 .live-deep .app-odd-btn.odds-change-up:not(.selected) .app-odd-btn-value { color: #7BE3A4 !important; }
 .live-deep .app-odd-btn.odds-change-down:not(.selected) .app-odd-btn-value { color: #FF8A8E !important; }
+
+/* Skip rendering work for sections well below the fold until they approach the viewport. */
+.below-fold,
+section.hot {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 560px;
+}

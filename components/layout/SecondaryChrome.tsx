@@ -31,6 +31,7 @@ export function SecondaryChrome({
       <main
         className={cn(
           "flex flex-col gap-y-3 p-3",
+          !isAccountRoute && !isWalletActionRoute && !isCasinoRoute && "with-footer",
           isAccountRoute && "gap-y-0 p-0",
           isCasinoPlayRoute && "gap-y-0 p-0",
           showMobileNavigation && !isCasinoPlayRoute && "pb-20",

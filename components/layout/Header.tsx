@@ -56,7 +56,7 @@ export function Header() {
 
   return (
     <header className="app-header p-2">
-      <Link href="/" aria-label="Go to home" className="inline-flex">
+      <Link href="/" aria-label="Pitchside home" className="inline-flex">
         <PitchsideLogo size={30} tone="light" />
       </Link>
       <div className="header-actions">

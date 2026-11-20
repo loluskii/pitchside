@@ -65,7 +65,7 @@ export function HomeHero() {
         ))}
       </div>
       <p className="mt-3 flex items-center gap-1.5 px-1 text-[11px] text-[var(--ink-3)]">
-        <Clock3 className="size-3.5" /> New fixtures kick off every hour, around the clock.
+        <Clock3 className="size-3.5" /> New matches start every hour.
       </p>
     </section>
   );

@@ -16,12 +16,8 @@ export function CasinoLobby() {
       <section className="bg-[var(--ink)] px-3 pb-5 pt-4 text-[var(--chalk)]">
         <div className="flex items-end justify-between">
           <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--lime)]">Pitchside Casino</p>
-            <h1 className="mt-1 font-heading text-[32px] font-extrabold leading-[0.95] tracking-tight">
-              Quick games,
-              <br />
-              between halves.
-            </h1>
+            <h1 className="font-heading text-[32px] font-extrabold leading-none tracking-tight">Casino</h1>
+            <p className="mt-1.5 text-sm text-[var(--chalk)]/65">Instant games, played with your balance.</p>
           </div>
           <Sparkles className="mb-1 text-[var(--lime)]" size={22} />
         </div>
@@ -58,8 +54,8 @@ export function CasinoLobby() {
       {/* Games grid */}
       <section className="bg-[var(--chalk)] px-3 py-5">
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="font-heading text-xl font-extrabold text-[var(--ink)]">Originals</h2>
-          <span className="text-xs text-[var(--ink)]/50">{CASINO_GAMES.length} games</span>
+          <h2 className="font-heading text-xl font-extrabold text-[var(--ink)]">All games</h2>
+          <span className="text-xs text-[var(--ink)]/70">{CASINO_GAMES.length} games</span>
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           {rest.map((game, index) => (
@@ -91,8 +87,7 @@ export function CasinoLobby() {
 
       {/* Coming soon band */}
       <section className="bg-[var(--pitch-deep)] px-3 py-5 text-[var(--chalk)]">
-        <h2 className="font-heading text-lg font-extrabold">On the way</h2>
-        <p className="text-xs text-[var(--chalk)]/60">New tables are being built for the floor.</p>
+        <h2 className="font-heading text-lg font-extrabold">Coming soon</h2>
         <div className="-mx-3 mt-3 flex gap-2.5 overflow-x-auto px-3 no-scrollbar">
           {LOBBY_EXTRAS.map((extra) => (
             <div key={extra.title} className="relative h-32 w-40 shrink-0 overflow-hidden rounded-2xl">
@@ -101,7 +96,7 @@ export function CasinoLobby() {
               <div className="absolute inset-0 bg-[var(--ink)]/55" />
               <div className="absolute inset-x-2.5 bottom-2.5">
                 <p className="font-heading text-sm font-bold">{extra.title}</p>
-                <p className="text-[10px] uppercase tracking-wider text-[var(--lime)]">Soon</p>
+                <p className="text-[10px] uppercase tracking-wider text-[var(--lime)]">Coming soon</p>
               </div>
             </div>
           ))}

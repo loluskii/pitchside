@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronUp, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,7 +22,14 @@ export function BetSlipLauncher() {
     /^\/sports\/[^/]+\/[^/]+$/.test(pathname) ||
     /^\/live\/[^/]+\/[^/]+$/.test(pathname);
 
-  if (selectionCount === 0) return null;
+  const hasSlip = selectionCount > 0;
+  useEffect(() => {
+    // A body class instead of a :has() selector, which would re-match on every DOM update.
+    document.body.classList.toggle("has-slip", hasSlip);
+    return () => document.body.classList.remove("has-slip");
+  }, [hasSlip]);
+
+  if (!hasSlip) return null;
 
   const totalOdds = selections.reduce((product, selection) => {
     const odds = Number(selection.odds);

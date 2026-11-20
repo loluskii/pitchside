@@ -8,7 +8,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ game: string }> }) {
   const { game } = await params;
-  return { title: `${gameBySlug(game)?.name ?? "Casino"} · Pitchside` };
+  return { title: `${gameBySlug(game)?.name ?? "Casino"}` };
 }
 
 export default async function CasinoGamePage({ params }: { params: Promise<{ game: string }> }) {

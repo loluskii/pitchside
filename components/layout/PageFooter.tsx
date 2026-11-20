@@ -8,8 +8,8 @@ export function PageFooter() {
     <footer className="page-footer -mx-2.5 mt-6 rounded-t-[28px] bg-[var(--pitch-deep)] px-5 pb-32 pt-7 text-[#ffffff]/80">
       <PitchsideLogo size={26} tone="light" />
       <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-[#ffffff]/70">
-        Every fixture on Pitchside is played out by a live match simulation. Kick-offs every hour,
-        prices that move with the game, tickets that settle the moment the whistle goes.
+        All matches on Pitchside are simulated and all bets use play money. No real money can be
+        deposited or won.
       </p>
       <div className="mt-5 flex flex-wrap gap-2">
         <span className="rounded-full bg-[var(--lime)] px-2.5 py-1 font-mono text-[11px] font-semibold text-[var(--ink)]">
@@ -26,11 +26,11 @@ export function PageFooter() {
         <Link href="/casino" className="hover:text-[var(--lime)]">Casino</Link>
         <Link href="/deposit" className="hover:text-[var(--lime)]">Add funds</Link>
       </nav>
-      <p className="mt-6 border-t border-[#ffffff]/15 pt-4 font-mono text-[11px] text-[#ffffff]/55">
+      <p className="mt-6 border-t border-[#ffffff]/15 pt-4 font-mono text-[11px] text-[#ffffff]/75">
         © {new Date().getFullYear()} Pitchside · Built by Isaac Adelore
       </p>
-      <p className="mt-1 font-mono text-[10px] text-[#ffffff]/40">
-        Photography via <a href="https://unsplash.com/license" className="underline">Unsplash</a>
+      <p className="mt-1 font-mono text-[11px] text-[#ffffff]/75">
+        Photos from <a href="https://unsplash.com/license" className="underline">Unsplash</a>
       </p>
     </footer>
   );

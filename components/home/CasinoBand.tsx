@@ -5,11 +5,10 @@ import { photo } from "@/lib/media";
 
 export function CasinoBand() {
   return (
-    <section className="-mx-2.5 bg-[var(--ink)] px-2.5 py-5 text-[var(--chalk)]">
+    <section className="below-fold -mx-2.5 bg-[var(--ink)] px-2.5 py-5 text-[var(--chalk)]">
       <div className="mb-3 flex items-end justify-between">
         <div>
-          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--lime)]">Casino originals</p>
-          <h2 className="font-heading text-xl font-extrabold">Something between halves</h2>
+          <h2 className="font-heading text-xl font-extrabold">Casino</h2>
         </div>
         <Link href="/casino" className="inline-flex items-center gap-1 text-xs font-bold text-[var(--lime)]">
           All games <ArrowRight size={14} />

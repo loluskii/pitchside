@@ -13,10 +13,10 @@ import { useUserStore } from "@/store/userStore";
 type Mode = "deposit" | "withdraw";
 
 const DEPOSIT_METHODS = [
-  { id: "instant", label: "Instant", note: "Lands in seconds", icon: Zap },
-  { id: "transfer", label: "Transfer", note: "From your bank app", icon: Building2 },
-  { id: "card", label: "Card", note: "Saved card", icon: CreditCard },
-  { id: "ussd", label: "USSD", note: "*Dial code", icon: Hash },
+  { id: "instant", label: "Wallet", note: "Instant", icon: Zap },
+  { id: "transfer", label: "Transfer", note: "Bank app", icon: Building2 },
+  { id: "card", label: "Card", note: "Debit card", icon: CreditCard },
+  { id: "ussd", label: "USSD", note: "Any phone", icon: Hash },
 ] as const;
 
 const PRESETS: Record<Mode, number[]> = {
@@ -66,7 +66,7 @@ export function WalletActionView({ mode }: { mode: Mode }) {
       } else {
         setMessage({
           ok: true,
-          text: isDeposit ? `${naira(amount)} added to your balance.` : `${naira(amount)} is on its way.`,
+          text: isDeposit ? `${naira(amount)} added to your balance.` : `Withdrawal of ${naira(amount)} requested.`,
         });
         await refresh().catch(() => undefined);
         void queryClient.invalidateQueries({ queryKey: ["wallet"] });
@@ -114,8 +114,8 @@ export function WalletActionView({ mode }: { mode: Mode }) {
       <section className="space-y-4 rounded-t-[28px] bg-[var(--chalk)] px-3 pb-28 pt-5 -mt-4 relative">
         {hasHydrated && !isAuthenticated ? (
           <div className="rounded-3xl bg-[var(--paper)] p-5 text-center">
-            <p className="font-heading text-lg font-bold text-[var(--ink)]">Log in first</p>
-            <p className="mt-1 text-sm text-[var(--ink)]/60">Use the demo account to try the wallet.</p>
+            <p className="font-heading text-lg font-bold text-[var(--ink)]">Log in to continue</p>
+            <p className="mt-1 text-sm text-[var(--ink)]/60">You need to be logged in to add funds or withdraw.</p>
             <button
               type="button"
               onClick={() => openLogin(`/${mode}`)}
@@ -197,7 +197,7 @@ export function WalletActionView({ mode }: { mode: Mode }) {
                   onClick={() => setAmount(Math.floor(balance))}
                   className="mt-2 text-xs font-bold text-[var(--pitch)]"
                 >
-                  Withdraw everything ({naira(Math.floor(balance))})
+                  Withdraw all ({naira(Math.floor(balance))})
                 </button>
               ) : null}
             </div>
@@ -221,7 +221,7 @@ export function WalletActionView({ mode }: { mode: Mode }) {
               {busy ? "Processing…" : isDeposit ? `Add ${naira(amount)}` : `Withdraw ${naira(amount)}`}
             </button>
             <p className="px-1 text-center text-[11px] text-[var(--ink)]/45">
-              {isDeposit ? "Minimum ₦100 · balance cap ₦5,000,000" : "Minimum ₦500 · payouts clear in under a minute"}
+              {isDeposit ? "Minimum deposit ₦100" : "Minimum withdrawal ₦500"}
             </p>
 
             {!isDeposit && withdrawals.length ? (

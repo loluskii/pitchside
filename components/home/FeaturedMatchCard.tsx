@@ -12,6 +12,8 @@ import { getMarketDisplayName } from "@/lib/utils/market-display-resolver";
 import { getTeamFallbackLogo } from "@/lib/utils/sports";
 import type { FeaturedEvent } from "@/types";
 
+const HOUR_FORMAT = new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: true });
+
 function formatStartTime(value: string): string {
   const target = new Date(value);
   const today = new Date();
@@ -22,7 +24,7 @@ function formatStartTime(value: string): string {
                   target.getFullYear() === today.getFullYear();
 
   // 1. Get the time part (h a format, e.g., "3 PM")
-  const timeString = target.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }); // e.g., "3 PM"
+  const timeString = HOUR_FORMAT.format(target); // e.g., "3 PM"
 
   // 2. Determine the date prefix
   if (isToday) {

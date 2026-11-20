@@ -150,18 +150,27 @@ export function FeaturedGamesContainer() {
   }, [activeTournamentId]);
 
   const currentTournamentKey = currentTournament ? String(activeTournamentId ?? "") : "";
+  const firstPillKeyRef = useRef<string | null>(null);
   useEffect(() => {
     const row = leagueTabsRef.current;
     if (!row || !currentTournamentKey) return;
-    const activePill = row.querySelector<HTMLElement>(".league-item.active");
-    if (!activePill) return;
-    // Centre the active pill inside its own row without touching the page scroll.
-    const rowRect = row.getBoundingClientRect();
-    const pillRect = activePill.getBoundingClientRect();
-    row.scrollTo({
-      left: row.scrollLeft + pillRect.left - rowRect.left - (rowRect.width - pillRect.width) / 2,
-      behavior: "smooth",
+    // The first pill is already in view on load; measuring here would force a full layout.
+    if (firstPillKeyRef.current === null) {
+      firstPillKeyRef.current = currentTournamentKey;
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      const activePill = row.querySelector<HTMLElement>(".league-item.active");
+      if (!activePill) return;
+      // Centre the active pill inside its own row without touching the page scroll.
+      const rowRect = row.getBoundingClientRect();
+      const pillRect = activePill.getBoundingClientRect();
+      row.scrollTo({
+        left: row.scrollLeft + pillRect.left - rowRect.left - (rowRect.width - pillRect.width) / 2,
+        behavior: "smooth",
+      });
     });
+    return () => cancelAnimationFrame(frame);
   }, [currentTournamentKey]);
 
   useEffect(

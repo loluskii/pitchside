@@ -93,7 +93,7 @@ export function Liftoff() {
             </span>
           ))
         ) : (
-          <span className="text-[11px] text-[var(--chalk)]/40">Recent flights appear here</span>
+          <span className="text-[11px] text-[var(--chalk)]/40">Previous rounds show here</span>
         )}
       </div>
 
@@ -118,11 +118,11 @@ export function Liftoff() {
             {multiplier.toFixed(2)}×
           </span>
           <span className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--chalk)]/50">
-            {phase === "idle" && "Ready for take-off"}
-            {phase === "flying" && "Climbing"}
-            {phase === "crashed" && "Landed"}
-            {phase === "cashed" && !running && cashedAt ? `Landed · you banked at ${cashedAt.toFixed(2)}×` : null}
-            {phase === "cashed" && running && cashedAt ? `Banked ${naira(amount * cashedAt)} at ${cashedAt.toFixed(2)}×` : null}
+            {phase === "idle" && "Place a bet to start"}
+            {phase === "flying" && "Round in progress"}
+            {phase === "crashed" && "Crashed"}
+            {phase === "cashed" && !running && cashedAt ? `Crashed. You cashed out at ${cashedAt.toFixed(2)}×` : null}
+            {phase === "cashed" && running && cashedAt ? `You won ${naira(amount * cashedAt)}` : null}
           </span>
         </div>
       </div>
@@ -144,7 +144,7 @@ export function Liftoff() {
           disabled={running}
           className="h-14 w-full rounded-2xl bg-[var(--chalk)] font-heading text-lg font-extrabold text-[var(--ink)] disabled:opacity-50"
         >
-          {running ? "Watching the flight…" : `Launch · ${naira(amount)}`}
+          {running ? "Waiting for the round to end" : `Bet ${naira(amount)}`}
         </button>
       )}
     </GameShell>

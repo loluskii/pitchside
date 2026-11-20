@@ -379,10 +379,9 @@ const ProfilePage = ({
               {
                 id: "cs",
                 icon: <MdHeadsetMic size={18} />,
-                label: "Customer Support",
-                subtitle: "Available 24/7",
+                label: "Help",
+                subtitle: "FAQs and terms",
                 path: "/account/customer-support",
-                dot: true,
               },
               ...(isLoggedIn
                 ? [
@@ -455,7 +454,7 @@ const ProfilePage = ({
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  {item.dot ? (
+                  {"dot" in item && item.dot ? (
                     <div
                       style={{
                         width: "5px",

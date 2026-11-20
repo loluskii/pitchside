@@ -510,17 +510,20 @@ export function formatHomeLiveTime(fixture: RawFixture): string {
   return [time, period].filter(Boolean).join(" ");
 }
 
+// Building a formatter is expensive; list rows call this hundreds of times per render.
+const HOME_START_TIME_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  month: "short",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
 export function formatHomeStartTime(value: string): string {
   const date = parseApiDateForBrowser(value);
   if (!date) return "-- -- --:--";
 
-  return date.toLocaleString("en-GB", {
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  return HOME_START_TIME_FORMAT.format(date);
 }
 
 export function getOddsContainerWidth(hasSpecifier: boolean): number {

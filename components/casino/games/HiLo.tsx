@@ -69,10 +69,10 @@ export function HiLo() {
             <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--chalk)]/55">Current</p>
             <p className="font-heading text-4xl font-extrabold tabular-nums text-[var(--chalk)]">{multiplier.toFixed(2)}×</p>
             <p className="text-xs font-semibold text-[var(--chalk)]/70">
-              {phase === "idle" && "Deal to start"}
-              {phase === "playing" && (multiplier > 1 ? `Worth ${naira(amount * multiplier)}` : "Make your first call")}
-              {phase === "lost" && <span className="text-[#FF8A8E]">Wrong call — round over</span>}
-              {phase === "banked" && <span className="text-[var(--lime)]">Banked {naira(amount * multiplier)}</span>}
+              {phase === "idle" && "Place a bet to deal"}
+              {phase === "playing" && (multiplier > 1 ? `Worth ${naira(amount * multiplier)}` : "Higher or lower?")}
+              {phase === "lost" && <span className="text-[#FF8A8E]">Wrong guess. Round over.</span>}
+              {phase === "banked" && <span className="text-[var(--lime)]">You won {naira(amount * multiplier)}</span>}
             </p>
           </div>
         </div>
@@ -111,7 +111,7 @@ export function HiLo() {
             disabled={multiplier <= 1}
             className="h-14 w-full rounded-2xl bg-[var(--lime)] font-heading text-lg font-extrabold text-[var(--ink)] disabled:opacity-40"
           >
-            {multiplier > 1 ? `Bank ${naira(amount * multiplier)}` : "Win a call to bank"}
+            {multiplier > 1 ? `Cash out ${naira(amount * multiplier)}` : "Guess right to cash out"}
           </button>
         </>
       ) : (
@@ -122,7 +122,7 @@ export function HiLo() {
             onClick={deal}
             className="h-14 w-full rounded-2xl bg-[var(--lime)] font-heading text-lg font-extrabold text-[var(--ink)]"
           >
-            Deal · {naira(amount)}
+            Deal for {naira(amount)}
           </button>
         </>
       )}
