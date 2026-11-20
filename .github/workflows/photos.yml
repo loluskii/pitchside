@@ -1,0 +1,32 @@
+name: Fetch photos
+
+# Copies the Unsplash photos listed in lib/media.ts into public/photos.
+# Runs when the photo list or the script changes, or by hand.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - lib/media.ts
+      - scripts/fetch-photos.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save --no-audit --no-fund sharp@0.34
+      - run: node scripts/fetch-photos.mjs
+      - name: Commit photos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add public/photos
+          git diff --cached --quiet || git commit -m "Add photos to public/photos"
+          git push
