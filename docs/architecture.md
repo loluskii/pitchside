@@ -12,7 +12,7 @@ flowchart TB
     Cache["Query cache (TanStack Query)"]
   end
 
-  subgraph Client["API layer (unchanged from the original app)"]
+  subgraph Client["API layer"]
     Services["lib/api/* services"]
     Live["Live topic subscriptions (useMqtt)"]
   end
@@ -37,7 +37,7 @@ flowchart TB
 
 ### How requests reach the engine
 
-The API layer was written for a real service, and it still calls URLs on a single host, `engine.pitchside.internal`.
+The API layer is written as if it were talking to a remote service. Every call goes to URLs on a single host, `engine.pitchside.internal`.
 
 - **In the browser,** `lib/engine/install.ts` wraps `window.fetch`. Requests to that host are answered by `upstream.ts`, and everything else goes to the network as usual.
 - **In server routes and server components,** the same requests go through `engineFetch`, which calls `upstream.ts` directly.
@@ -46,7 +46,7 @@ Because both sides compute from the same clock, a page rendered on the server an
 
 ### Live updates
 
-The original app subscribed to MQTT topics such as `sports/1/match/123/markets`. `realtime.ts` keeps that contract:
+Live data uses MQTT-style topics such as `sports/1/match/123/markets`. `realtime.ts` publishes them:
 
 1. Components subscribe to topics for the matches on screen.
 2. Every 3 seconds the engine reprices half of the subscribed matches and publishes a message only when a price, status or score has actually changed.

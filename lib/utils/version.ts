@@ -1,4 +1,4 @@
-const VERSION_KEY = "bp_app_version";
+const VERSION_KEY = "ps_app_version";
 const VERSION_FILE = "/version.json";
 
 /** Clear all localStorage except auth state, then wipe stores and service worker cache */

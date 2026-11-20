@@ -2,19 +2,19 @@
 
 ## The problem
 
-Pitchside started as a mobile sportsbook front end built against a real betting API: fixtures, live odds over MQTT, bet placement, booking codes, a cash wallet. When that API was switched off, the app had nothing to show. Every screen depended on live data, and an empty sportsbook doesn't demonstrate anything.
+A sportsbook front end is hard to show. Every screen depends on a live odds feed, which means a licensed data provider, a betting backend and a wallet. Without those, the screens are empty, and an empty sportsbook doesn't demonstrate anything.
 
-The goal was to bring the product back as a public showcase without rebuilding the backend, without fake screenshots, and without real money anywhere near it. It had to feel live whenever someone opened it: matches in progress, prices moving, bets settling.
+The goal was a public product that feels live whenever someone opens it (matches in progress, prices moving, bets settling) without a backend to run, without fake screenshots, and without real money anywhere near it.
 
 ## The approach
 
-Instead of mocking a few endpoints, the backend was replaced with a deterministic match engine that runs inside the app.
+Instead of mocking a few endpoints, Pitchside has a deterministic match engine that runs inside the app.
 
 - **The whole sporting world is a function of the clock.** Given the current time, the engine knows which matches exist, what minute each one is in, the score, and a price for every market. Two visitors opening the site at the same moment see the same matches and the same scores, with no server or database coordinating them.
-- **The engine speaks the old API's language.** Requests go to the same paths, and responses come back in the same shapes the app already used, so the UI layer, the data normalisers and the betslip didn't need rewriting. Live updates use the same topic names the MQTT broker used.
+- **The engine behaves like a real sportsbook API.** The app calls REST paths and subscribes to MQTT-style live topics, using the payload shapes a production odds feed uses. The UI, data normalisers and betslip are written against that contract, not against the engine, so they'd work unchanged against a real API.
 - **Accounts and tickets live in the browser.** Each visitor gets a play-money balance of ₦50,000, and bets settle against the engine's final scores.
 
-On top of that, the product was rebranded and redesigned, and extended with ice hockey, tennis, four casino games and play-money deposit and withdrawal flows.
+On top of that sit four sports, four casino games, and play-money deposit and withdrawal flows.
 
 ## What it shows
 

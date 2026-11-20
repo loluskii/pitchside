@@ -210,7 +210,7 @@ export function FeaturedGamesContainer() {
                     className={cn("league-item", "featured-league-skeleton")}
                     aria-hidden="true"
                   >
-                    <span className="bp-skeleton featured-league-skeleton-logo" />
+                    <span className="ps-skeleton featured-league-skeleton-logo" />
                   </div>
                 ))
               : tournaments.map((tournament, index) => {

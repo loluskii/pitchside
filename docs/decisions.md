@@ -4,17 +4,17 @@
 
 **Decision:** Run the whole product in the app. Matches, prices and settlement come from a deterministic engine, and accounts live in the browser.
 
-**Why:** The original API is gone, and the goal is a showcase that stays live with no running costs and nothing to break overnight. A deterministic engine also means every visitor sees the same matches, which makes the product feel shared rather than faked per user.
+**Why:** The goal is a showcase that stays live with no running costs and nothing to break overnight. A deterministic engine also means every visitor sees the same matches, which makes the product feel shared rather than faked per user.
 
 **Cost:** Each visitor's balance and tickets stay on their own device. Clearing site data resets them, and two devices can't share an account.
 
-## Keep the old API contracts
+## Use real-world API contracts
 
-**Decision:** The engine answers the same paths and returns the same payload shapes as the original sportsbook API, including the live topic names.
+**Decision:** The engine answers REST paths and publishes live topics in the shapes a production odds feed uses, instead of handing the UI plain objects.
 
-**Why:** The UI, data normalisers, betslip and live-update bridge were already built and tested against those shapes. Keeping the contract meant none of that had to change, and pointing the app at a real API again only means changing the base URLs in `lib/api/config.ts`.
+**Why:** The UI, data normalisers, betslip and live-update bridge are written against that contract, so they're the same code that would run against a real provider. Pointing the app at a real API only means changing the base URLs in `lib/api/config.ts`.
 
-**Cost:** Some payloads carry fields the engine doesn't need, and a few endpoints return empty lists because the feature they served (promotions, referrals) isn't part of this version.
+**Cost:** Some payloads carry fields the engine doesn't need, and a few endpoints return empty lists for features this version doesn't have (promotions, referrals).
 
 ## Play money only
 

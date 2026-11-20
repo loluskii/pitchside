@@ -1769,12 +1769,12 @@
   --odds-flash-base-text: #10100E;
 }
 
-.bp-odd-btn {
+.ps-odd-btn {
   --odds-flash-base-bg: #F1F1EF;
   --odds-flash-base-text: #2563EB;
 }
 
-.bp-odd-btn-selected {
+.ps-odd-btn-selected {
   --odds-flash-base-bg: #E8F0FE;
   --odds-flash-base-text: #10100E;
 }
@@ -1823,8 +1823,8 @@
 
 .fc-odd-btn.odds-change-up .fc-odd-val,
 .fc-odd-btn.odds-change-down .fc-odd-val,
-.bp-odd-btn.odds-change-up span,
-.bp-odd-btn.odds-change-down span,
+.ps-odd-btn.odds-change-up span,
+.ps-odd-btn.odds-change-down span,
 .app-odd-btn.odds-change-up .app-odd-btn-label,
 .app-odd-btn.odds-change-up .app-odd-btn-value,
 .app-odd-btn.odds-change-down .app-odd-btn-label,
@@ -2983,7 +2983,7 @@
 }
 
 /* Shared skeletons */
-.bp-skeleton {
+.ps-skeleton {
   position: relative;
   display: block;
   overflow: hidden;
@@ -2991,7 +2991,7 @@
   border-radius: var(--radius-full);
 }
 
-.bp-skeleton::after {
+.ps-skeleton::after {
   content: "";
   position: absolute;
   inset: 0;

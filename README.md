@@ -12,7 +12,7 @@ A mobile sportsbook and casino that runs entirely on a match simulation. About 5
 
 There's no backend. A deterministic engine inside the app works out the whole sporting world from the current time: which matches exist, what minute each one is in, the score, and a price for every market. Two people opening the site at the same moment see the same matches and the same scores.
 
-The engine answers the same API paths and live-update topics the app was originally built against, so the UI, the betslip and the live-update layer work as they would with a real sportsbook API.
+The engine answers REST paths and publishes live-update topics in the shapes a production odds feed uses, so the UI, the betslip and the live-update layer are the same code that would run against a real sportsbook API.
 
 ```mermaid
 flowchart LR
