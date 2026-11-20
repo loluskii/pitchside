@@ -1,56 +1,63 @@
 # Pitchside
 
-A mobile-first sportsbook running on a live match simulation. Fixtures kick off every hour, around the clock. Clocks tick, goals land, prices move every few seconds, markets suspend after a goal, and tickets settle when the final whistle goes.
+A mobile sportsbook and casino that runs entirely on a match simulation. About 50 matches are in play at any time across football, basketball, ice hockey and tennis. Prices move with the score and the clock, and bets settle when the final whistle goes. Everything uses play money.
 
-Every fixture carries a **SIM** badge. Clubs and competitions are fictional, balances are play money, and no payments exist anywhere in the product.
+**Live:** https://pitchside-app-alpha.vercel.app (log in with the demo account on the login screen)
 
-**Live:** https://pitchside-app-alpha.vercel.app
+![Pitchside screens: home, live, a match, and the Liftoff casino game](docs/media/screens.jpg)
 
-## What's interesting here
+[Watch the 60-second demo](docs/media/pitchside-demo.mp4)
 
-### The match engine (`lib/engine`)
+## How it works
 
-There's no backend or database, and nothing to keep in sync. The whole sporting world is a **pure function of time**:
+There's no backend. A deterministic engine inside the app works out the whole sporting world from the current time: which matches exist, what minute each one is in, the score, and a price for every market. Two people opening the site at the same moment see the same matches and the same scores.
 
-- **Schedule** (`model.ts`): each competition has a kick-off grid. Fixtures for a slot are drawn from a seeded shuffle. Clubs are split into two pools that alternate slots, so no club ever appears in two live games at once.
-- **Match state** (`model.ts`): scoring timelines are decided before kick-off, from each side's strength. Football uses Poisson goals across 90 minutes plus a 15-minute break. Basketball uses four quarters with pauses. `matchState(fixture, now)` returns the clock, phase and score at any instant.
-- **Pricing** (`model.ts`, `feed.ts`): football prices come from the remaining expected goals, combined with a Poisson model of the score so far. Basketball uses a normal approximation on the points spread. Either way, prices carry a 6.5% margin plus a slow, deterministic drift, so they move like a real feed. Markets suspend for 25 seconds after each goal.
-- **Settlement** (`feed.ts`, `account.ts`): when a match ends, the model's probabilities collapse to 0 or 1. Every selection settles from the final (or half-time) score, and winnings are paid back into the play balance.
+The engine answers the same API paths and live-update topics the app was originally built against, so the UI, the betslip and the live-update layer work as they would with a real sportsbook API.
 
-The server-rendered feed and the in-browser live ticker don't share any state. Because both compute from the same seed and clock, they always agree.
+```mermaid
+flowchart LR
+  UI["React UI<br/>TanStack Query · Zustand"] -->|"REST paths"| Upstream["upstream.ts"]
+  UI -->|"live topics"| Realtime["realtime.ts"]
+  Upstream --> Feed["feed.ts<br/>markets · settlement"]
+  Realtime --> Feed
+  Feed --> Model["model.ts<br/>schedule · clock · pricing"]
+  Upstream --> Ledger["account.ts<br/>balance · tickets"]
+```
 
-### Same contracts, different source
+More detail:
 
-The UI talks to the engine through the same service paths and payload shapes a production sportsbook API uses:
+- [Case study](docs/case-study.md): the problem, the approach and the results
+- [Architecture](docs/architecture.md): request flow, live updates, folder map
+- [The match engine](docs/engine.md): scheduling, scoring, pricing, settlement and casino maths
+- [Decisions and trade-offs](docs/decisions.md)
+- [Photo credits](docs/credits.md)
 
-- **REST:** fixtures, markets, bet placement and history.
-- **Live topics:** markets, scores, match status and bet stops.
+## Features
 
-`lib/engine/upstream.ts` answers those requests in-process, and `lib/engine/realtime.ts` publishes the live topics. Nothing upstream of the API layer knows the difference. Pointing `lib/api/config.ts` at a real API is a two-line change.
+- **Sports:** football (six competitions), basketball, ice hockey and tennis, with new matches every hour.
+- **Live betting:** prices that react to goals and time, a short suspension after each goal, and locked prices once an outcome is decided.
+- **Betslip:** singles, accumulators and system bets, booking codes, and price checks before placement. Price rises are accepted automatically; drops ask first.
+- **Casino:** Liftoff, Spot Kick, Dice Duel and Hi-Lo, each with its return-to-player figure shown.
+- **Wallet:** play-money top-ups and withdrawals, plus a transaction history.
 
-### The app
+## Stack
 
-- **Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4.**
-- **State:** TanStack Query for server state, with live updates patched into the query cache. Zustand for the betslip, auth and UI.
-- **Betslip:** singles, multiples and system bets, odds-change acceptance, booking codes, and validation against live prices before placement.
-- **Accounts:** the player account and ticket ledger live in the browser, so every visitor gets their own play balance.
-
-## Design
-
-The look is light "chalk and ink":
-
-- **Surfaces:** warm off-white pages with paper-white cards.
-- **Colour:** pitch green for state and for odds, chalk-lime for anything you can act on, and a red flare for in-play.
-- **Type:** Bricolage Grotesque for headings, Geist for interface text, and Geist Mono for odds and clocks, so numbers line up as they change.
-- **Navigation:** a dark floating dock.
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · TanStack Query v5 · Zustand v5 · Vitest
 
 ## Running it
 
 ```bash
 npm install
 npm run dev      # http://localhost:3000
-npm test         # unit tests, including the engine
+npm test
 npm run build
 ```
 
 No environment variables are needed.
+
+## Quality
+
+- Lighthouse (mobile): accessibility 100, best practices 100, SEO 100. Performance is 75–80 on sport and casino pages and 50–65 on the home page, where the engine and live feed share the main thread.
+- 149 unit tests, including the engine and the betslip.
+
+All teams, players and competitions are fictional. All photos are used under the Unsplash License.
