@@ -54,6 +54,15 @@ function renderDisabledContent(
   label: string,
   showLockWhenDisabled: boolean,
 ) {
+  if (showLockWhenDisabled && layout === "split") {
+    return (
+      <span className="app-odd-btn-split-content">
+        <span className="app-odd-btn-label text-left text-base font-semibold">{label}</span>
+        <MdLock size={16} className="shrink-0 text-white/45" aria-label="Locked" />
+      </span>
+    );
+  }
+
   if (showLockWhenDisabled) {
     return (
       <span className="app-odd-btn-value text-lg font-bold">
@@ -76,6 +85,17 @@ function renderDisabledContent(
   }
 
   return <span className="app-odd-btn-value text-lg font-bold">{valueNode}</span>;
+}
+
+/**
+ * Prices this extreme mean the outcome is effectively decided (e.g. a late two-goal
+ * lead). Bookmakers lock these rather than show a cap price, so we do too.
+ */
+const DECIDED_LONG = 100;
+const DECIDED_SHORT = 1.01;
+
+function isDecidedPrice(odds: number) {
+  return Number.isFinite(odds) && (odds >= DECIDED_LONG || odds <= DECIDED_SHORT);
 }
 
 export function OddsButton(props: OddsButtonProps) {
@@ -271,17 +291,20 @@ export function OddsButton(props: OddsButtonProps) {
     });
   };
 
-  if (isUnavailable) {
+  const isDecided = !isUnavailable && isDecidedPrice(odds);
+
+  if (isUnavailable || (isDecided && !isSelected)) {
     return (
       <div
         style={buttonStyles}
         className={cn(
           "app-odd-btn app-odd-btn-disabled",
+          isDecided && "app-odd-btn-locked",
           fluid && "app-odd-btn-fluid",
           layout === "split" ? "app-odd-btn-split" : "app-odd-btn-centered",
         )}
       >
-        {renderDisabledContent(layout, displayLabel, showLockWhenDisabled)}
+        {renderDisabledContent(layout, displayLabel, isDecided || showLockWhenDisabled)}
       </div>
     );
   }

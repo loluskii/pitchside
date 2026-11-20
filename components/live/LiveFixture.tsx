@@ -159,7 +159,7 @@ export function LiveFixture({ fixture, market }: LiveFixtureProps) {
       </div>
 
       <div className="lm-live-footer">
-        <div className="lm-live-market-size">+{Number(fixture.activeMarkets) || 0}&gt;</div>
+        <div className="lm-live-market-size">+{Number(fixture.activeMarkets) || 0} markets</div>
       </div>
     </div>
   );

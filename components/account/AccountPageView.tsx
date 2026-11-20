@@ -29,6 +29,7 @@ import {
   MdSyncAlt,
   MdVisibility,
   MdVisibilityOff,
+  MdSensors,
 } from "react-icons/md";
 import { AuthHydrationFallback } from "@/components/auth/AuthHydrationFallback";
 import { useAuthModal } from "@/components/auth/AuthModalProvider";
@@ -297,7 +298,7 @@ const ProfilePage = ({
             },
             {
               id: "live",
-              icon: <MdSyncAlt size={18} />,
+              icon: <MdSensors size={18} />,
               label: "In play",
               path: "/live",
               requiresAuth: false,

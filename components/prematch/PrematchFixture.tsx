@@ -113,7 +113,7 @@ export function PrematchFixture({
 
       <div className="lm-footer">
         <div className="lm-footer-left">
-          <span>+{Number(fixture.activeMarkets) || 0}</span>
+          <span>+{Number(fixture.activeMarkets) || 0} markets</span>
         </div>
         <div className="lm-footer-right">
           <Activity01Icon size={14} color="var(--text-dim)" />

@@ -4366,28 +4366,31 @@ section.hot,
 .header-search-button { color: #fff; }
 .custom-app-button.btn-gradient { background: var(--lime); color: var(--ink); }
 section.hot {
-  background: var(--pitch-deep);
+  background: var(--chalk);
   margin: 0 -10px;
-  padding: 18px 10px 16px;
+  padding: 20px 10px 18px;
   border-radius: 0;
   position: relative;
   overflow: hidden;
 }
+/* Light band: faint mown-pitch stripes, so it reads as a section without going dark. */
 section.hot::before {
   content: "";
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 85% -10%, rgba(203, 234, 78, 0.22), transparent 45%),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 36px, transparent 36px 72px);
+    radial-gradient(circle at 90% -20%, rgba(12, 122, 77, 0.10), transparent 50%),
+    repeating-linear-gradient(90deg, rgba(12, 122, 77, 0.035) 0 36px, transparent 36px 72px);
   pointer-events: none;
 }
 section.hot > * { position: relative; }
-section.hot .fc-uh-title { color: #fff; }
-section.hot .league-item { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
-section.hot .league-item .league-item-name { color: rgba(255,255,255,0.75); }
-section.hot .league-item.active { background: var(--lime); border-color: var(--lime); }
-section.hot .league-item.active .league-item-name { color: var(--ink); }
+section.hot .fc-uh-title { color: var(--ink); }
+section.hot .league-item { background: var(--paper); border-color: rgba(18, 26, 22, 0.1); }
+section.hot .league-item .league-item-name { color: rgba(18, 26, 22, 0.7); }
+section.hot .league-item.active { background: var(--ink); border-color: var(--ink); }
+section.hot .league-item.active .league-item-name { color: var(--chalk); }
+section.hot .fc-match-card,
+section.hot .featured-card { box-shadow: 0 1px 2px rgba(18, 26, 22, 0.05), 0 8px 24px rgba(18, 26, 22, 0.06); }
 .featured-scroll { padding-left: 0; padding-right: 0; }
 
 /* ── Live: deep night-pitch theme ───────────────────────────────────────────
@@ -4500,3 +4503,50 @@ section.hot .league-item.active .league-item-name { color: var(--ink); }
 }
 .live-deep .odds-change-up { animation-name: pitchsideLiveFlashUp; }
 .live-deep .odds-change-down { animation-name: pitchsideLiveFlashDown; }
+
+/* Slip bar: docks above the bottom nav, never over the odds columns. */
+.slip-bar-above-nav { bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); }
+.slip-bar-bottom { bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
+body:has(.slip-bar) main { padding-bottom: 136px; }
+body:has(.slip-bar-bottom) .live-deep-page { padding-bottom: 80px; }
+body:has(.slip-bar) .back-to-top-button { bottom: calc(env(safe-area-inset-bottom, 0px) + 8.5rem); }
+
+/* Live rows: period label and league line hard-coded dark in the base skin. */
+.lm-status { color: var(--ink); }
+.live-deep .lm-status {
+  color: var(--lime);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.live-deep .lm-live-meta .lm-league,
+.live-deep .lm-league { color: rgba(242, 241, 236, 0.62); font-size: 12px; }
+.lm-live-meta .lm-league { font-size: 12px; }
+.live-deep .lm-footer,
+.live-deep .lm-more-markets,
+.live-deep .lm-markets-count { color: rgba(242, 241, 236, 0.6); font-size: 12px; }
+.lm-live-market-size { font-size: 12px; }
+.live-deep .lm-live-market-size { color: rgba(242, 241, 236, 0.62); }
+
+/* Footer always reaches the bottom of the screen, edge to edge, on short pages too. */
+main:has(> .page-footer:last-child) {
+  min-height: calc(100dvh - 60px);
+  padding-bottom: 0;
+}
+main > .page-footer:last-child { margin-top: auto; }
+main.p-3 > .page-footer { margin-inline: -12px; }
+body:has(.slip-bar) main:has(> .page-footer:last-child) { padding-bottom: 0; }
+body:has(.slip-bar) .page-footer { padding-bottom: 180px; }
+
+/* Selected always wins over the price-move tint. */
+.app-odd-btn.selected.odds-change-up,
+.app-odd-btn.selected.odds-change-down { animation: none; background: var(--lime); border-color: var(--lime); }
+.app-odd-btn.selected .app-odd-btn-value,
+.app-odd-btn.selected .app-odd-btn-label,
+.live-deep .app-odd-btn.selected.odds-change-up .app-odd-btn-value,
+.live-deep .app-odd-btn.selected.odds-change-down .app-odd-btn-value { color: #121A16 !important; }
+/* On the dark band, a move is shown by a coloured outline and number, not a filled tile. */
+.live-deep .app-odd-btn.odds-change-up:not(.selected) { animation: none; background: var(--live-card); border-color: rgba(123, 227, 164, 0.75); }
+.live-deep .app-odd-btn.odds-change-down:not(.selected) { animation: none; background: var(--live-card); border-color: rgba(255, 138, 142, 0.75); }
+.live-deep .app-odd-btn:not(.selected):not(.odds-change-up):not(.odds-change-down) .app-odd-btn-value { color: #F2F1EC; }
+.live-deep .app-odd-btn.odds-change-up:not(.selected) .app-odd-btn-value { color: #7BE3A4 !important; }
+.live-deep .app-odd-btn.odds-change-down:not(.selected) .app-odd-btn-value { color: #FF8A8E !important; }

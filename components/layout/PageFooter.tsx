@@ -5,7 +5,7 @@ import { PitchsideLogo } from "@/components/brand/Logo";
 
 export function PageFooter() {
   return (
-    <footer className="-mx-2.5 mt-6 rounded-t-[28px] bg-[var(--pitch-deep)] px-5 pb-32 pt-7 text-[#ffffff]/80">
+    <footer className="page-footer -mx-2.5 mt-6 rounded-t-[28px] bg-[var(--pitch-deep)] px-5 pb-32 pt-7 text-[#ffffff]/80">
       <PitchsideLogo size={26} tone="light" />
       <p className="mt-4 max-w-[34ch] text-[13px] leading-relaxed text-[#ffffff]/70">
         Every fixture on Pitchside is played out by a live match simulation. Kick-offs every hour,

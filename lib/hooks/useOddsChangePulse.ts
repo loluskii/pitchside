@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+/** Moves smaller than 2% don't flash. */
+const MIN_RELATIVE_MOVE = 0.02;
+
 export type OddsChangeDirection = "up" | "down" | null;
 
 type UseOddsChangePulseOptions = {
@@ -12,7 +15,7 @@ type UseOddsChangePulseOptions = {
 
 export function useOddsChangePulse(
   value: number | null | undefined,
-  { durationMs = 5000, enabled = true, resetKey = "" }: UseOddsChangePulseOptions = {}
+  { durationMs = 1800, enabled = true, resetKey = "" }: UseOddsChangePulseOptions = {}
 ) {
   const [direction, setDirection] = useState<OddsChangeDirection>(null);
   const previousValueRef = useRef<number | null>(null);
@@ -70,6 +73,12 @@ export function useOddsChangePulse(
     previousValueRef.current = nextValue;
 
     if (previousValue === null || previousValue === nextValue) {
+      return;
+    }
+
+    // In-play prices tick on every update; only flag moves a bettor would notice.
+    if (Math.abs(nextValue - previousValue) / previousValue < MIN_RELATIVE_MOVE) {
+      previousValueRef.current = previousValue;
       return;
     }
 

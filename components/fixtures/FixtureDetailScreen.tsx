@@ -462,7 +462,7 @@ export function FixtureDetailScreen({
   const statsWidgetName = isLive ? "match.Statistics" : "headToHead.standalone";
 
   const liveTitle = `${String(detail?.homeTeam ?? "").trim()} vs ${String(detail?.awayTeam ?? "").trim()}`;
-  const title = isLive ? liveTitle : "Details";
+  const title = detail ? liveTitle : "Match";
   const leagueLabel = detail ? getLeagueLabel(detail, sportSlug, isLive) : "Fixture details";
   const homeScore = String(
     detail?.homeScore ?? detail?.eventInfo?.score?.home ?? detail?.eventInfo?.scores?.home ?? "0",
@@ -541,7 +541,7 @@ export function FixtureDetailScreen({
           <FixtureDetailTabs
             activeTab={visibleActiveTab}
             onChange={(nextTab) => setTabState({ activeTab: nextTab, matchId })}
-            showCustomBet={!isLive}
+            showCustomBet={false}
           />
 
           <div className="pb-[120px]">

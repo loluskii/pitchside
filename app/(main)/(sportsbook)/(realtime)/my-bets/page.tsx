@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -453,7 +455,7 @@ export default function MyBetsPage() {
 
   const emptyDescription =
     activeRootTab === "open"
-      ? "Open bets only include pending tickets that are not yet won or lost."
+      ? "Tickets you place show up here until they settle."
       : "Adjust the date filter or switch history tabs to inspect a different range of bets.";
 
   const handleRebet = async (bet: BetHistoryItem) => {
@@ -851,6 +853,22 @@ export default function MyBetsPage() {
             <div className="rounded-2xl border border-dashed border-white/10 bg-surface-elevated px-4 py-10 text-center">
               <p className="text-xl font-semibold text-white">{emptyMessage}</p>
               <p className="mt-2 text-md leading-6 text-[var(--text-dim)]">{emptyDescription}</p>
+              {activeRootTab === "open" ? (
+                <div className="mt-5 flex justify-center gap-2">
+                  <Link
+                    href="/sports/football?period=today"
+                    className="rounded-xl bg-[var(--ink)] px-4 py-2.5 text-sm font-bold text-[var(--chalk)]"
+                  >
+                    Browse today&apos;s matches
+                  </Link>
+                  <Link
+                    href="/live"
+                    className="rounded-xl border border-[var(--ink)]/15 px-4 py-2.5 text-sm font-bold text-[var(--ink)]"
+                  >
+                    In play
+                  </Link>
+                </div>
+              ) : null}
             </div>
           )}
 

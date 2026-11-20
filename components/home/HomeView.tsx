@@ -247,8 +247,9 @@ export function HomeView() {
     <>
         <HomeHero />
 
-        <FeaturedGamesContainer />
+        {/* Alternating bands: dark live, light featured, dark casino, light schedule. */}
         <LiveContainer />
+        <FeaturedGamesContainer />
         <CasinoBand />
         <HighlightsContainer />
 

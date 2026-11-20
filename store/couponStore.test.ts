@@ -699,7 +699,7 @@ describe("couponStore", () => {
             id: 1601,
             specifier: "xup=1",
             status_name: "Active",
-            outcomes: [{ active: 1, id: "1", odds: 1.95 }],
+            outcomes: [{ active: 1, id: "1", odds: 1.05 }],
           },
         ],
       },
@@ -707,7 +707,7 @@ describe("couponStore", () => {
     );
 
     const selection = useCouponStore.getState().selections[0];
-    expect(selection.odds).toBe(1.95);
+    expect(selection.odds).toBe(1.05);
     expect(selection.changed).toBe(true);
     expect(selection.specifier).toBe("xup=1");
   });
@@ -2192,14 +2192,31 @@ describe("couponStore", () => {
     await waitForAsyncWork();
 
     store.handleOddsChange("505", [
+      { marketId: "1", odds: 1.95, outcomeId: "1", specifier: "", statusName: "Active" },
+    ]);
+    await waitForAsyncWork();
+
+    const selection = useCouponStore.getState().selections[0];
+    expect(selection.odds).toBe(1.95);
+    expect(selection.changed).toBe(true);
+    expect(useCouponStore.getState().acceptChanges).toBe(false);
+  });
+
+  it("takes price rises on open selections without asking the player to accept", async () => {
+    const store = useCouponStore.getState();
+    store.addSelection(buildPlainSelection("5060", 2.2, "1"));
+    await waitForAsyncWork();
+    const acceptBefore = useCouponStore.getState().acceptChanges;
+
+    store.handleOddsChange("5060", [
       { marketId: "1", odds: 2.45, outcomeId: "1", specifier: "", statusName: "Active" },
     ]);
     await waitForAsyncWork();
 
     const selection = useCouponStore.getState().selections[0];
     expect(selection.odds).toBe(2.45);
-    expect(selection.changed).toBe(true);
-    expect(useCouponStore.getState().acceptChanges).toBe(false);
+    expect(selection.changed).toBeFalsy();
+    expect(useCouponStore.getState().acceptChanges).toBe(acceptBefore);
   });
 
   it("recalculates previews from realtime odds changes before odds are accepted", async () => {
@@ -2213,7 +2230,7 @@ describe("couponStore", () => {
     apiMocks.betsApi.previewFlex.mockClear();
 
     store.handleOddsChange("5051", [
-      { marketId: "1", odds: 2.45, outcomeId: "1", specifier: "", statusName: "Active" },
+      { marketId: "1", odds: 1.95, outcomeId: "1", specifier: "", statusName: "Active" },
     ]);
     await new Promise((resolve) => setTimeout(resolve, 250));
 

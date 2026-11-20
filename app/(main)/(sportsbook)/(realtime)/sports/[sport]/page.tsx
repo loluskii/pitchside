@@ -81,7 +81,7 @@ type FixtureModeOption = {
 type FilterPanel = "period" | "league" | "sort" | null;
 
 const PERIOD_OPTIONS = [
-  { label: "Daily", value: "" },
+  { label: "All dates", value: "" },
   { label: "Today", value: "today" },
   { label: "Tomorrow", value: "tomorrow" },
   { label: "Today & Tomorrow", value: "today_tomorrow" },
@@ -89,8 +89,8 @@ const PERIOD_OPTIONS = [
 ] as const;
 
 const SORT_OPTIONS = [
-  { label: "Leagues", value: "priority" },
-  { label: "Start Time", value: "start_time" },
+  { label: "By league", value: "priority" },
+  { label: "By kick-off", value: "start_time" },
 ] as const;
 
 function readQueryParam(value: SearchParamValue): string {
@@ -217,11 +217,11 @@ function getPeriodLabel(period: string, startDate: string, endDate: string, hour
   if (period === "custom" && startDate && endDate) {
     return "Custom Date";
   }
-  return "Daily";
+  return "All dates";
 }
 
 function getSortLabel(sortBy: string) {
-  return sortBy === "start_time" ? "Start Time" : "Leagues";
+  return sortBy === "start_time" ? "By kick-off" : "By league";
 }
 
 function groupFixturesByTournament(fixtures: RawFixture[]) {

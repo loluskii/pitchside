@@ -950,6 +950,23 @@ function rebuildMatchIds(selections: CouponSelection[]): string[] {
   return [...ids];
 }
 
+/** True when the only change is a higher price on a still-open selection. */
+function isSilentRise(
+  selection: { odds?: number | string; suspended?: boolean; unavailable?: boolean },
+  nextOdds: number,
+  flags: { suspended: boolean; unavailable: boolean },
+) {
+  const current = Number(selection.odds || 0);
+  return (
+    current > 1 &&
+    nextOdds > current &&
+    !flags.suspended &&
+    !flags.unavailable &&
+    !selection.suspended &&
+    !selection.unavailable
+  );
+}
+
 function getSelectionStatusFlags(statusName = "") {
   const normalized = String(statusName || "").trim().toLowerCase();
   return {
@@ -3014,6 +3031,7 @@ export const useCouponStore = create<CouponState>()(
       handleOddsChange: (matchId, updates) => {
         let didChange = false;
         set((state) => {
+          let silentRiseOnly = true;
           let hasLocalChange = false;
 
           const nextSelections = state.selections.map((selection) => {
@@ -3038,9 +3056,13 @@ export const useCouponStore = create<CouponState>()(
 
             hasLocalChange = true;
 
+            // A price rise on an open selection only helps the player: take it silently.
+            const silentRise = isSilentRise(selection, Number(update.odds || 0), statusFlags);
+            if (!silentRise) silentRiseOnly = false;
+
             return normalizeSelection({
               ...patchSelectionQuoteUpdate(selection, update),
-              changed: true,
+              changed: silentRise ? Boolean(selection.changed) : true,
             });
           });
 
@@ -3049,7 +3071,7 @@ export const useCouponStore = create<CouponState>()(
 
           return {
             ...applyCouponState(state, {
-              acceptChanges: false,
+              acceptChanges: silentRiseOnly ? state.acceptChanges : false,
               selections: nextSelections,
             }),
           };
@@ -4009,6 +4031,19 @@ export const useCouponStore = create<CouponState>()(
                         changed: false,
                       })
                     : selection;
+                }
+
+                if (isSilentRise(selection, asNumber(source.odds, 0), statusFlags)) {
+                  return normalizeSelection({
+                    ...patchSelectionQuoteUpdate(selection, {
+                      marketId: String(source.market_id ?? source.marketId ?? selection.marketId),
+                      odds: asNumber(source.odds, 0),
+                      outcomeId: String(source.outcome_id ?? source.outcomeId ?? selection.outcomeId),
+                      specifier: String(source.specifier ?? selection.specifier ?? ""),
+                      statusName: String(source.status_name || source.statusName || ""),
+                    }),
+                    changed: Boolean(selection.changed),
+                  });
                 }
 
                 hasSelectionChange = true;

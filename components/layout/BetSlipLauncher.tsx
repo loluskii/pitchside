@@ -1,11 +1,16 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Ticket } from "lucide-react";
+import { ChevronUp, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCouponStore } from "@/store/couponStore";
 import { useUIStore } from "@/store/uiStore";
 
+/**
+ * Slip bar. Hidden while the slip is empty; once there are picks it docks just above
+ * the bottom navigation (or the screen edge on chromeless routes) at full dock width,
+ * so it never floats over an odds column.
+ */
 export function BetSlipLauncher() {
   const pathname = usePathname();
   const showMobileNavigation = useUIStore((state) => state.showMobileNavigation);
@@ -16,7 +21,12 @@ export function BetSlipLauncher() {
     /^\/sports\/[^/]+\/[^/]+$/.test(pathname) ||
     /^\/live\/[^/]+\/[^/]+$/.test(pathname);
 
-  // if (selectionCount === 0) return null;
+  if (selectionCount === 0) return null;
+
+  const totalOdds = selections.reduce((product, selection) => {
+    const odds = Number(selection.odds);
+    return Number.isFinite(odds) && odds > 1 ? product * odds : product;
+  }, 1);
 
   return (
     <button
@@ -25,22 +35,22 @@ export function BetSlipLauncher() {
         toggleOpen();
       }}
       className={cn(
-        "app-floating-action fixed right-[max(0.75rem,calc(50%-232px+18px))] z-sticky bg-[#EEEFEC] text-white shadow-md",
-        showMobileNavigation && !isChromelessRoute
-          ? "betslip-launcher-above-nav"
-          : "bottom-5",
+        "slip-bar fixed left-1/2 z-sticky flex h-11 w-[calc(100%-36px)] max-w-[444px] -translate-x-1/2 items-center gap-2.5 rounded-2xl bg-[var(--lime)] pl-2 pr-3 text-[var(--ink)] shadow-[0_10px_28px_rgba(18,26,22,0.28)]",
+        showMobileNavigation && !isChromelessRoute ? "slip-bar-above-nav" : "slip-bar-bottom",
       )}
       type="button"
       aria-label={`Open bet slip with ${selectionCount} selection${selectionCount === 1 ? "" : "s"}`}
     >
-      <Ticket size={18} className="text-white" />
-      {
-        selectionCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#CBEA4E] px-1 text-xs font-black text-white">
-            {selectionCount}
-          </span>
-        )
-      }
+      <span className="flex h-7 min-w-7 items-center justify-center rounded-lg bg-[var(--ink)] px-1.5 text-xs font-black text-[var(--lime)]">
+        {selectionCount}
+      </span>
+      <span className="flex items-center gap-1.5 text-sm font-bold">
+        <Ticket size={16} /> Betslip
+      </span>
+      <span className="ml-auto font-mono text-sm font-bold tabular-nums">
+        {selectionCount > 1 ? `${totalOdds.toFixed(2)} odds` : `@ ${totalOdds.toFixed(2)}`}
+      </span>
+      <ChevronUp size={18} />
     </button>
   );
 }
